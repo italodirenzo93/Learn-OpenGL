@@ -6,7 +6,7 @@ class Shader
 public:
 	unsigned int ID;
 
-	Shader(const char* vertexPath, const char* fragmentPath);
+	explicit Shader(const char* vertexPath, const char* fragmentPath);
 
 	void use();
 	void setBool(const char* name, bool value) const;
