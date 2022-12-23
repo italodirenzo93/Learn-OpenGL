@@ -10,6 +10,22 @@
 #include <stb_image.h>
 
 #include <iostream>
+#include <fstream>
+#include <string>
+
+std::string ReadShaderSourceFromFile(const char* fileName)
+{
+    std::ifstream ifs(fileName);
+    if (!ifs.is_open())
+    {
+        std::cout << "Could not open " << fileName << " for reading." << std::endl;
+        return "Error";
+    }
+
+    std::string code((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+
+    return code;
+}
 
 int main(void)
 {
@@ -54,24 +70,147 @@ int main(void)
     ImGui::StyleColorsDark();
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 460 core");
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+
+    // VBO
+    static const float vertices[] = {
+        // positions // colors
+        0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
+        0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top
+    };
+
+    unsigned int vboID;
+    glGenBuffers(1, &vboID);
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // VAO
+    unsigned int vaoID;
+    glGenVertexArrays(1, &vaoID);
+    glBindVertexArray(vaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), NULL);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // Vertex Shader
+    auto vertexCode = ReadShaderSourceFromFile("./resources/shaders/basic.vert");
+    const char* pVertexCode = vertexCode.c_str();
+    unsigned int vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShaderID, 1, &pVertexCode, NULL);
+    glCompileShader(vertexShaderID);
+
+    GLint vertex_compiled;
+    glGetShaderiv(vertexShaderID, GL_COMPILE_STATUS, &vertex_compiled);
+    if (vertex_compiled != GL_TRUE)
+    {
+        GLsizei log_length = 0;
+        GLchar message[1024];
+        glGetShaderInfoLog(vertexShaderID, 1024, &log_length, message);
+        // Write the error to a log
+        printf("Failed to compile vertex shader... %s\n", message);
+
+        glDeleteShader(vertexShaderID);
+        glfwTerminate();
+        return 1;
+    }
+
+    // Fragment Shader
+    auto fragmentCode = ReadShaderSourceFromFile("./resources/shaders/basic.frag");
+    const char* pFragmentCode = fragmentCode.c_str();
+    unsigned int fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShaderID, 1, &pFragmentCode, NULL);
+    glCompileShader(fragmentShaderID);
+
+    GLint fragment_compiled;
+    glGetShaderiv(fragmentShaderID, GL_COMPILE_STATUS, &fragment_compiled);
+    if (fragment_compiled != GL_TRUE)
+    {
+        GLsizei log_length = 0;
+        GLchar message[1024];
+        glGetShaderInfoLog(fragmentShaderID, 1024, &log_length, message);
+        // Write the error to a log
+        printf("Failed to compile fragment shader... %s\n", message);
+
+        glDeleteShader(vertexShaderID);
+        glDeleteShader(fragmentShaderID);
+        glfwTerminate();
+        return 1;
+    }
+
+    // GLSL program
+    unsigned int programID = glCreateProgram();
+    glAttachShader(programID, vertexShaderID);
+    glAttachShader(programID, fragmentShaderID);
+    glLinkProgram(programID);
+    glDetachShader(programID, vertexShaderID);
+    glDetachShader(programID, fragmentShaderID);
+
+    GLint program_status;
+    glGetProgramiv(programID, GL_LINK_STATUS, &program_status);
+    if (program_status != GL_TRUE)
+    {
+        GLsizei log_length = 0;
+        GLchar message[1024];
+        glGetProgramInfoLog(programID, 1024, &log_length, message);
+        // Write the error to a log
+        printf("Failed to link program... %s\n", message);
+
+        glDeleteProgram(programID);
+        glDeleteShader(vertexShaderID);
+        glDeleteShader(fragmentShaderID);
+        glfwTerminate();
+        return 1;
+    }
+
+    glValidateProgram(programID);
+    glGetProgramiv(programID, GL_VALIDATE_STATUS, &program_status);
+    if (program_status != GL_TRUE)
+    {
+        GLsizei log_length = 0;
+        GLchar message[1024];
+        glGetProgramInfoLog(programID, 1024, &log_length, message);
+        // Write the error to a log
+        printf("Failed to validate program... %s\n", message);
+    }
+
+    glDeleteShader(vertexShaderID);
+    vertexShaderID = 0;
+    glDeleteShader(fragmentShaderID);
+    fragmentShaderID = 0;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* ImGui Frame */
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
-        ImGui::Render();
+        //ImGui_ImplOpenGL3_NewFrame();
+        //ImGui_ImplGlfw_NewFrame();
+        //ImGui::NewFrame();
+        //ImGui::ShowDemoWindow();
+        //ImGui::Render();
 
         /* Render here */
+        glUseProgram(programID);
+
+        glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+
+        glBindVertexArray(vaoID);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
 
         /* ImGui Render */
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -79,6 +218,9 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
+
+    glDeleteProgram(programID);
+    programID = 0;
 
     glfwTerminate();
     return 0;
