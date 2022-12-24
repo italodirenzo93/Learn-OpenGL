@@ -139,6 +139,11 @@ int main(void)
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	stbi_set_flip_vertically_on_load(true);
 	image = stbi_load("./resources/textures/awesomeface.png", &w, &h, &nrChannels, STBI_default);
 	if (image)
@@ -170,6 +175,10 @@ int main(void)
 
 		program.setInt("texture1", 0);
 		program.setInt("texture2", 1);
+
+		float timeValue = glfwGetTime();
+		float blendValue = sin(timeValue) / 2.0f + 0.5f;
+		program.setFloat("uBlendAmount", blendValue);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
