@@ -192,6 +192,18 @@ int main(void)
 	}
 	stbi_image_free(image);
 
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(2.0f, 5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f, 3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f, 2.0f, -2.5f),
+		glm::vec3(1.5f, 0.2f, -1.5f),
+		glm::vec3(-1.3f, 1.0f, -1.5f)};
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -201,9 +213,6 @@ int main(void)
 		// ImGui::NewFrame();
 		// ImGui::ShowDemoWindow();
 		// ImGui::Render();
-
-		glm::mat4 matModel = glm::mat4(1.0f);
-		matModel = glm::rotate(matModel, float(glfwGetTime()) * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
 		glm::mat4 matView = glm::mat4(1.0f);
 		matView = glm::translate(matView, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -218,8 +227,8 @@ int main(void)
 		glClearDepthf(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		program.setMatrix("uMVP", matProjection * matView * matModel);
-
+		program.setMat4("uMatView", matView);
+		program.setMat4("uMatProjection", matProjection);
 		program.setInt("texture1", 0);
 		program.setInt("texture2", 1);
 
@@ -231,9 +240,21 @@ int main(void)
 
 		glBindVertexArray(VAO);
 
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 matModel = glm::mat4(1.0f);
+			matModel = glm::translate(matModel, cubePositions[i]);
+
+			float angle = 20.0f * i;
+			matModel = glm::rotate(matModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+			program.setMat4("uMatModel", matModel);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 		// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		// glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);
