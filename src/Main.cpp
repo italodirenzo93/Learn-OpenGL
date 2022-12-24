@@ -204,6 +204,18 @@ int main(void)
 		glm::vec3(1.5f, 0.2f, -1.5f),
 		glm::vec3(-1.3f, 1.0f, -1.5f)};
 
+	// Camera
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+
+	glm::mat4 matProjection;
+	matProjection = glm::perspective(glm::radians(45.0f), 640.0f / 480.0f, 0.1f, 100.0f);
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -214,11 +226,12 @@ int main(void)
 		// ImGui::ShowDemoWindow();
 		// ImGui::Render();
 
-		glm::mat4 matView = glm::mat4(1.0f);
-		matView = glm::translate(matView, glm::vec3(0.0f, 0.0f, -3.0f));
+		const float radius = 10.0f;
+		float camX = sin(glfwGetTime()) * radius;
+		float camZ = cos(glfwGetTime()) * radius;
 
-		glm::mat4 matProjection;
-		matProjection = glm::perspective(glm::radians(45.0f), 640.0f / 480.0f, 0.1f, 100.0f);
+		glm::mat4 matView = glm::mat4(1.0f);
+		matView = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		/* Render here */
 		program.use();
@@ -252,9 +265,6 @@ int main(void)
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
-		// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		// glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);
