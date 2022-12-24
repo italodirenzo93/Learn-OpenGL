@@ -17,18 +17,50 @@
 
 #include "Shader.h"
 
-std::string ReadShaderSourceFromFile(const char *fileName)
+// Camera
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float cameraSpeed = 0.05f;
+
+void processInput(GLFWwindow *window)
 {
-	std::ifstream ifs(fileName);
-	if (!ifs.is_open())
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		std::cout << "Could not open " << fileName << " for reading." << std::endl;
-		return "Error";
+		cameraPos += cameraSpeed * cameraFront;
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		cameraPos -= cameraSpeed * cameraFront;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	}
+}
+
+void scrollCallback(GLFWwindow *window, double xOffset, double yOffset)
+{
+	if (yOffset == 0)
+		return;
+
+	float newSpeed;
+
+	if (yOffset > 0)
+	{
+		newSpeed = cameraSpeed + 0.01f;
+	}
+	else
+	{
+		newSpeed = cameraSpeed - 0.01f;
 	}
 
-	std::string code((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
-
-	return code;
+	cameraSpeed = glm::clamp(newSpeed, 0.01f, 0.05f);
+	std::cout << "Camera speed: " << cameraSpeed << std::endl;
 }
 
 int main(void)
@@ -49,6 +81,9 @@ int main(void)
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
+
+	// GLFW callbacks
+	glfwSetScrollCallback(window, scrollCallback);
 
 	/* Initialize GLAD */
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -204,21 +239,14 @@ int main(void)
 		glm::vec3(1.5f, 0.2f, -1.5f),
 		glm::vec3(-1.3f, 1.0f, -1.5f)};
 
-	// Camera
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-
 	glm::mat4 matProjection;
 	matProjection = glm::perspective(glm::radians(45.0f), 640.0f / 480.0f, 0.1f, 100.0f);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
+		processInput(window);
+
 		/* ImGui Frame */
 		// ImGui_ImplOpenGL3_NewFrame();
 		// ImGui_ImplGlfw_NewFrame();
@@ -231,7 +259,7 @@ int main(void)
 		float camZ = cos(glfwGetTime()) * radius;
 
 		glm::mat4 matView = glm::mat4(1.0f);
-		matView = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		matView = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		/* Render here */
 		program.use();
