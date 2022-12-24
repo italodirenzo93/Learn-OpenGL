@@ -169,9 +169,14 @@ int main(void)
 		// ImGui::ShowDemoWindow();
 		// ImGui::Render();
 
-		glm::mat4 transform = glm::mat4(1.0f);
-		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-		transform = glm::rotate(transform, float(glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
+		glm::mat4 matModel = glm::mat4(1.0f);
+		matModel = glm::rotate(matModel, float(glfwGetTime()), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		glm::mat4 matView = glm::mat4(1.0f);
+		matView = glm::translate(matView, glm::vec3(0.0f, 0.0f, -3.0f));
+
+		glm::mat4 matProjection;
+		matProjection = glm::perspective(glm::radians(45.0f), 640.0f / 480.0f, 0.1f, 100.0f);
 
 		/* Render here */
 		program.use();
@@ -179,14 +184,10 @@ int main(void)
 		glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		program.setMatrix("uTransform", transform);
+		program.setMatrix("uMVP", matProjection * matView * matModel);
 
 		program.setInt("texture1", 0);
 		program.setInt("texture2", 1);
-
-		float timeValue = glfwGetTime();
-		float blendValue = sin(timeValue) / 2.0f + 0.5f;
-		program.setFloat("uBlendAmount", blendValue);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
