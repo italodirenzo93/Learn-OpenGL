@@ -7,6 +7,8 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 
 #include <iostream>
@@ -167,11 +169,17 @@ int main(void)
 		// ImGui::ShowDemoWindow();
 		// ImGui::Render();
 
+		glm::mat4 transform = glm::mat4(1.0f);
+		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		transform = glm::rotate(transform, float(glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
+
 		/* Render here */
 		program.use();
 
 		glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		program.setMatrix("uTransform", transform);
 
 		program.setInt("texture1", 0);
 		program.setInt("texture2", 1);
