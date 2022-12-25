@@ -1,6 +1,6 @@
-#version 330 core
+#version 330
 
-in vec3 ourColor;
+in vec3 VertexColor;
 in vec2 TexCoord;
 
 out vec4 FragColor;
