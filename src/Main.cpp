@@ -13,8 +13,10 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <string>
 
+#include "Camera.h"
 #include "Shader.h"
 
 constexpr int WIDTH = 1024;
@@ -24,14 +26,8 @@ float deltaTime = 0.0f;
 float lastFrameTime = 0.0f;
 
 // Camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
 float cameraSpeed = 6.0f;
-float pitch = 0.0f;
-float yaw = -90.0f;
-float fieldOfView = 30.0f;
+std::unique_ptr<Camera> camera = nullptr;
 
 void processInput(GLFWwindow *window)
 {
@@ -40,35 +36,41 @@ void processInput(GLFWwindow *window)
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
+	if (camera == nullptr)
+		return;
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		cameraPos += cameraSpeed * cameraFront * deltaTime;
+		camera->position += cameraSpeed * camera->getForwardVector() * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		cameraPos -= cameraSpeed * cameraFront * deltaTime;
+		camera->position -= cameraSpeed * camera->getForwardVector() * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
+		camera->position -= glm::normalize(glm::cross(camera->getForwardVector(), camera->getUpVector())) * cameraSpeed * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
+		camera->position += glm::normalize(glm::cross(camera->getForwardVector(), camera->getUpVector())) * cameraSpeed * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 	{
-		cameraPos -= cameraSpeed * cameraUp * deltaTime;
+		camera->position -= cameraSpeed * camera->getUpVector() * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 	{
-		cameraPos += cameraSpeed * cameraUp * deltaTime;
+		camera->position += cameraSpeed * camera->getUpVector() * deltaTime;
 	}
 }
 
 void scrollCallback(GLFWwindow *window, double xOffset, double yOffset)
 {
-	fieldOfView = glm::clamp(fieldOfView - float(yOffset), 1.0f, 45.0f);
+	if (camera != nullptr)
+	{
+		camera->fieldOfView = glm::clamp(camera->fieldOfView - float(yOffset), 1.0f, 45.0f);
+	}
 }
 
 float lastX = WIDTH / 2.0f;
@@ -96,16 +98,11 @@ void mouseCallback(GLFWwindow *window, double xPos, double yPos)
 	xOffset *= sensitivity;
 	yOffset *= sensitivity;
 
-	yaw += xOffset;
-	pitch += yOffset;
+	float pitch = camera->getPitch();
+	float yaw = camera->getYaw();
 
-	pitch = glm::clamp(pitch, -89.0f, 89.0f);
-
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(direction);
+	camera->setYaw(yaw + xOffset);
+	camera->setPitch(glm::clamp(pitch + yOffset, -89.0f, 89.0f));
 }
 
 int main(void)
@@ -148,6 +145,8 @@ int main(void)
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
+
+	camera = std::unique_ptr<Camera>(new Camera(float(WIDTH / HEIGHT), glm::vec3(0.0f, 0.0f, 3.0f)));
 
 	// VBO
 	float vertices[] = {
@@ -225,8 +224,6 @@ int main(void)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	Shader program("./resources/shaders/basic.vert", "./resources/shaders/basic.frag");
-
 	// Load textures
 	unsigned int texture1;
 	glGenTextures(1, &texture1);
@@ -273,6 +270,8 @@ int main(void)
 	}
 	stbi_image_free(image);
 
+	Shader program("./resources/shaders/basic.vert", "./resources/shaders/basic.frag");
+
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(2.0f, 5.0f, -15.0f),
@@ -303,16 +302,6 @@ int main(void)
 		// ImGui::ShowDemoWindow();
 		// ImGui::Render();
 
-		const float radius = 10.0f;
-		float camX = sin((float)glfwGetTime()) * radius;
-		float camZ = cos((float)glfwGetTime()) * radius;
-
-		glm::mat4 matProjection;
-		matProjection = glm::perspective(glm::radians(fieldOfView), 640.0f / 480.0f, 0.1f, 100.0f);
-
-		glm::mat4 matView = glm::mat4(1.0f);
-		matView = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
 		/* Render here */
 		program.use();
 
@@ -320,8 +309,8 @@ int main(void)
 		glClearDepthf(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		program.setMat4("uMatView", matView);
-		program.setMat4("uMatProjection", matProjection);
+		program.setMat4("uMatView", camera->getViewMatrix());
+		program.setMat4("uMatProjection", camera->getProjectionMatrix());
 		program.setInt("texture1", 0);
 		program.setInt("texture2", 1);
 
