@@ -17,50 +17,95 @@
 
 #include "Shader.h"
 
+constexpr int WIDTH = 1024;
+constexpr int HEIGHT = 720;
+
+float deltaTime = 0.0f;
+float lastFrameTime = 0.0f;
+
 // Camera
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-float cameraSpeed = 0.05f;
+
+float cameraSpeed = 6.0f;
+float pitch = 0.0f;
+float yaw = -90.0f;
+float fieldOfView = 30.0f;
 
 void processInput(GLFWwindow *window)
 {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		cameraPos += cameraSpeed * cameraFront;
+		cameraPos += cameraSpeed * cameraFront * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		cameraPos -= cameraSpeed * cameraFront;
+		cameraPos -= cameraSpeed * cameraFront * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		cameraPos -= cameraSpeed * cameraUp * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		cameraPos += cameraSpeed * cameraUp * deltaTime;
 	}
 }
 
 void scrollCallback(GLFWwindow *window, double xOffset, double yOffset)
 {
-	if (yOffset == 0)
+	fieldOfView = glm::clamp(fieldOfView - float(yOffset), 1.0f, 45.0f);
+}
+
+float lastX = WIDTH / 2.0f;
+float lastY = HEIGHT / 2.0f;
+bool bIsFirstMouse = true;
+
+void mouseCallback(GLFWwindow *window, double xPos, double yPos)
+{
+	if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
 		return;
 
-	float newSpeed;
-
-	if (yOffset > 0)
+	if (bIsFirstMouse)
 	{
-		newSpeed = cameraSpeed + 0.01f;
-	}
-	else
-	{
-		newSpeed = cameraSpeed - 0.01f;
+		lastX = float(xPos);
+		lastY = float(yPos);
+		bIsFirstMouse = false;
 	}
 
-	cameraSpeed = glm::clamp(newSpeed, 0.01f, 0.05f);
-	std::cout << "Camera speed: " << cameraSpeed << std::endl;
+	float xOffset = float(xPos) - lastX;
+	float yOffset = lastY - float(yPos);
+	lastX = float(xPos);
+	lastY = float(yPos);
+
+	const float sensitivity = 0.1f;
+	xOffset *= sensitivity;
+	yOffset *= sensitivity;
+
+	yaw += xOffset;
+	pitch += yOffset;
+
+	pitch = glm::clamp(pitch, -89.0f, 89.0f);
+
+	glm::vec3 direction;
+	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	direction.y = sin(glm::radians(pitch));
+	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(direction);
 }
 
 int main(void)
@@ -72,7 +117,7 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -82,12 +127,18 @@ int main(void)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	// GLFW callbacks
 	glfwSetScrollCallback(window, scrollCallback);
+	glfwSetCursorPosCallback(window, mouseCallback);
 
 	/* Initialize GLAD */
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		return -1;
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	/* Initialize ImGui */
 	IMGUI_CHECKVERSION();
@@ -97,9 +148,6 @@ int main(void)
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
 
 	// VBO
 	float vertices[] = {
@@ -180,8 +228,6 @@ int main(void)
 	Shader program("./resources/shaders/basic.vert", "./resources/shaders/basic.frag");
 
 	// Load textures
-	// glActiveTexture(GL_TEXTURE0);
-
 	unsigned int texture1;
 	glGenTextures(1, &texture1);
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -239,13 +285,16 @@ int main(void)
 		glm::vec3(1.5f, 0.2f, -1.5f),
 		glm::vec3(-1.3f, 1.0f, -1.5f)};
 
-	glm::mat4 matProjection;
-	matProjection = glm::perspective(glm::radians(45.0f), 640.0f / 480.0f, 0.1f, 100.0f);
+	lastFrameTime = float(glfwGetTime());
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
+
+		float now = float(glfwGetTime());
+		deltaTime = now - lastFrameTime;
+		lastFrameTime = now;
 
 		/* ImGui Frame */
 		// ImGui_ImplOpenGL3_NewFrame();
@@ -255,8 +304,11 @@ int main(void)
 		// ImGui::Render();
 
 		const float radius = 10.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
+		float camX = sin((float)glfwGetTime()) * radius;
+		float camZ = cos((float)glfwGetTime()) * radius;
+
+		glm::mat4 matProjection;
+		matProjection = glm::perspective(glm::radians(fieldOfView), 640.0f / 480.0f, 0.1f, 100.0f);
 
 		glm::mat4 matView = glm::mat4(1.0f);
 		matView = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
