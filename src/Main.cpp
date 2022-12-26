@@ -147,7 +147,7 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
-	camera = std::make_shared<Camera>(float(WIDTH / HEIGHT), glm::vec3(0.0f, 0.0f, 3.0f));
+	camera = std::make_shared<Camera>(float(WIDTH) / float(HEIGHT), glm::vec3(0.0f, 0.0f, 3.0f));
 	// std::unique_ptr<Scene> scene(new BasicScene(camera));
 	std::unique_ptr<Scene> scene(new LightingScene(camera));
 
