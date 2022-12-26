@@ -93,6 +93,7 @@ void LightingScene::render(float deltaTime)
 	_program->setVec3("uObjectColor", 1.0f, 0.5f, 0.31f);
 	_program->setVec3("uLightColor", 1.0f, 1.0f, 1.0f);
 	_program->setVec3("uLightPos", _lightPos);
+	_program->setVec3("uViewPos", _camera->position);
 
 	{
 		_program->setMat4("uMatModel", glm::mat4(1.0f));
