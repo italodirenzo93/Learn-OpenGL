@@ -41,8 +41,8 @@ static const float vertices[] = {
 LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	: _camera(camera)
 {
-	_program = std::make_unique<Shader>("./resources/shaders/lit.vert", "./resources/shaders/lit.frag");
-	_lightProgram = std::make_unique<Shader>("./resources/shaders/lit.vert", "./resources/shaders/light.frag");
+	_program = std::make_unique<Shader>("./resources/shaders/basic.vert", "./resources/shaders/lit.frag");
+	_lightProgram = std::make_unique<Shader>("./resources/shaders/basic.vert", "./resources/shaders/light.frag");
 
 	glGenBuffers(1, &_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
@@ -72,7 +72,7 @@ LightingScene::~LightingScene()
 
 void LightingScene::render(float deltaTime)
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
