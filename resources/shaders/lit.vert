@@ -14,5 +14,8 @@ void main()
 {
 	gl_Position = uMatProjection * uMatView * uMatModel * vec4(aPos, 1.0);
 	FragPos = vec3(uMatModel * vec4(aPos, 1.0));
-	Normal = aNormal;
+
+	// NOTE: inverting a matrix is very costly on the GPU. For production apps, a dedicated model
+	// model matrix should be calculated on the CPU and sent to the GPU via a uniform.
+	Normal = mat3(transpose(inverse(uMatModel))) * aNormal;
 }
