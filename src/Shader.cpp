@@ -1,13 +1,7 @@
-#include <glad/glad.h>
+#include "Shader.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
-#include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
-
-#include "Shader.h"
 
 Shader::Shader(const char *vertexPath, const char *fragmentPath)
 	: ID(0)
@@ -87,6 +81,11 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath)
 	// delete shaders; they�re linked into our program and no longer necessary
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+}
+
+Shader::~Shader()
+{
+	glDeleteProgram(ID);
 }
 
 void Shader::use()

@@ -9,6 +9,7 @@ public:
 	unsigned int ID;
 
 	explicit Shader(const char *vertexPath, const char *fragmentPath);
+	~Shader();
 
 	void use();
 	void setBool(const char *name, bool value) const;
