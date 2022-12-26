@@ -113,6 +113,14 @@ int main(void)
 	if (!glfwInit())
 		return -1;
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+#ifndef NDEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
+
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
 	if (!window)
@@ -124,6 +132,7 @@ int main(void)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 
+	// Hide the mouse cursor
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// GLFW callbacks
@@ -133,6 +142,14 @@ int main(void)
 	/* Initialize GLAD */
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		return -1;
+
+	// Print OpenGL context information
+	{
+		std::cout << "OpenGL Context Version: " << glGetString(GL_VERSION) << std::endl
+				  << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl
+				  << "GPU Vendor: " << glGetString(GL_VENDOR) << std::endl
+				  << "GPU Model: " << glGetString(GL_RENDERER) << std::endl;
+	}
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
