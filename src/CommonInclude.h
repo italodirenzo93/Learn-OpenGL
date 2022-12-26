@@ -28,4 +28,8 @@
 #define NON_MOVABLE_CLASS(className) \
 	className(className &&) = delete;
 
+#define NON_COPYABLE_OR_MOVABLE_CLASS(className) \
+	NON_COPYABLE_CLASS(className);               \
+	NON_MOVABLE_CLASS(className);
+
 #endif

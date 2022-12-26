@@ -24,8 +24,7 @@ private:
 	std::unique_ptr<Shader> program;
 	unsigned int VBO, VAO, EBO, texture1, texture2;
 
-	NON_COPYABLE_CLASS(BasicScene);
-	NON_MOVABLE_CLASS(BasicScene);
+	NON_COPYABLE_OR_MOVABLE_CLASS(BasicScene)
 };
 
 #endif

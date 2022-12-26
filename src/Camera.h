@@ -30,7 +30,7 @@ protected:
 	float _pitch = 0.0f;
 	float _yaw = -90.0f;
 
-	inline void updateDirection();
+	void updateDirection();
 
 private:
 	NON_COPYABLE_CLASS(Camera);

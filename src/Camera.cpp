@@ -1,7 +1,5 @@
 #include "Camera.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-
 Camera::Camera(float aspectRatio, const glm::vec3 &pos)
 	: aspectRatio(aspectRatio), position(pos), _direction(0.0f, 0.0f, -1.0f)
 {
