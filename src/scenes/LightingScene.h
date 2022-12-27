@@ -17,8 +17,6 @@ private:
 
 	unsigned int _vao, _vbo, _lightVao;
 
-	glm::vec3 _lightPos;
-
 	NON_COPYABLE_OR_MOVABLE_CLASS(LightingScene)
 };
 

@@ -1,5 +1,7 @@
 #include "LightingScene.h"
 
+#include "Material.h"
+
 static const float vertices[] = {
 	// positions // normals // texture coords
 	-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
@@ -41,6 +43,14 @@ static const float vertices[] = {
 
 static constexpr unsigned int stride = 8 * sizeof(float);
 
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+Material orangeMaterial(
+	glm::vec3(1.0f, 0.5f, 0.31f),
+	glm::vec3(1.0f, 0.5f, 0.31f),
+	glm::vec3(0.5f),
+	32.0f);
+
 LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	: _camera(camera)
 {
@@ -68,8 +78,6 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	glEnableVertexAttribArray(0);
 
 	glUseProgram(0);
-
-	_lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 }
 
 LightingScene::~LightingScene()
@@ -81,7 +89,7 @@ LightingScene::~LightingScene()
 
 void LightingScene::render(float deltaTime)
 {
-	_lightPos.x = float(sin(glfwGetTime()) * 1.5);
+	lightPos.x = float(sin(glfwGetTime()) * 1.5);
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClearDepth(1.0f);
@@ -93,15 +101,12 @@ void LightingScene::render(float deltaTime)
 	_program->setMat4("uMatView", _camera->getViewMatrix());
 
 	_program->setVec3("uLightColor", 1.0f, 1.0f, 1.0f);
-	_program->setVec3("uLightPos", _lightPos);
+	_program->setVec3("uLightPos", lightPos);
 	_program->setVec3("uViewPos", _camera->position);
 
-	_program->setVec3("uMaterial.ambient", 1.0f, 0.5f, 0.31f);
-	_program->setVec3("uMaterial.diffuse", 1.0f, 0.5f, 0.31f);
-	_program->setVec3("uMaterial.specular", 0.5f, 0.5f, 0.5f);
-	_program->setFloat("uMaterial.shininess", 32.0f);
+	orangeMaterial.apply(*_program, "uMaterial");
 
-	_program->setVec3("uLight.position", _lightPos);
+	_program->setVec3("uLight.position", lightPos);
 	_program->setVec3("uLight.ambient", 0.2f, 0.2f, 0.2f);
 	_program->setVec3("uLight.diffuse", 0.5f, 0.5f, 0.5f); // darkened
 	_program->setVec3("uLight.specular", 1.0f, 1.0f, 1.0f);
@@ -121,7 +126,7 @@ void LightingScene::render(float deltaTime)
 
 	{
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, _lightPos);
+		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f));
 		_lightProgram->setMat4("uMatModel", model);
 
