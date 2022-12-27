@@ -1,8 +1,9 @@
 #include "Camera.h"
 
-Camera::Camera(float aspectRatio, const glm::vec3 &pos)
-	: aspectRatio(aspectRatio), position(pos), _direction(0.0f, 0.0f, -1.0f)
+Camera::Camera(float aspectRatio, const glm::vec3 &pos, const glm::vec3 &eulerAngles)
+	: aspectRatio(aspectRatio), position(pos), _yaw(eulerAngles.x), _pitch(eulerAngles.y)
 {
+	updateDirection();
 }
 
 glm::vec3 Camera::getForwardVector() const

@@ -6,7 +6,7 @@
 class Camera
 {
 public:
-	explicit Camera(float aspectRatio, const glm::vec3 &pos);
+	explicit Camera(float aspectRatio, const glm::vec3 &pos, const glm::vec3 &eulerAngles);
 
 	float fieldOfView = 45.0f;
 	float aspectRatio;
@@ -27,8 +27,8 @@ public:
 
 protected:
 	glm::vec3 _direction;
-	float _pitch = 0.0f;
-	float _yaw = -90.0f;
+	float _pitch;
+	float _yaw;
 
 	void updateDirection();
 

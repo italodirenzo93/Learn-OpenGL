@@ -97,6 +97,14 @@ void mouseCallback(GLFWwindow *window, double xPos, double yPos)
 	camera->setPitch(glm::clamp(pitch + yOffset, -89.0f, 89.0f));
 }
 
+void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS && camera != nullptr && key == GLFW_KEY_C)
+	{
+		std::cout << "Camera position: (" << camera->position.x << "f, " << camera->position.y << "f, " << camera->position.z << "f)" << std::endl;
+	}
+}
+
 int main(void)
 {
 	GLFWwindow *window;
@@ -128,6 +136,7 @@ int main(void)
 	// GLFW callbacks
 	glfwSetScrollCallback(window, scrollCallback);
 	glfwSetCursorPosCallback(window, mouseCallback);
+	glfwSetKeyCallback(window, keyCallback);
 
 	/* Initialize GLAD */
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -151,7 +160,7 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
-	camera = std::make_shared<Camera>(float(WIDTH) / float(HEIGHT), glm::vec3(0.0f, 0.0f, 3.0f));
+	camera = std::make_shared<Camera>(float(WIDTH) / float(HEIGHT), glm::vec3(-2.50649f, 0.381334f, 3.36252f), glm::vec3(-45.0f, 1.0f, 0.0f));
 	// std::unique_ptr<Scene> scene(new BasicScene(camera));
 	std::unique_ptr<Scene> scene(new LightingScene(camera));
 
