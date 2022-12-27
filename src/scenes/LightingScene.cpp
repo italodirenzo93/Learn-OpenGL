@@ -81,6 +81,8 @@ LightingScene::~LightingScene()
 
 void LightingScene::render(float deltaTime)
 {
+	_lightPos.x = float(sin(glfwGetTime()) * 1.5);
+
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -98,6 +100,11 @@ void LightingScene::render(float deltaTime)
 	_program->setVec3("uMaterial.diffuse", 1.0f, 0.5f, 0.31f);
 	_program->setVec3("uMaterial.specular", 0.5f, 0.5f, 0.5f);
 	_program->setFloat("uMaterial.shininess", 32.0f);
+
+	_program->setVec3("uLight.position", _lightPos);
+	_program->setVec3("uLight.ambient", 0.2f, 0.2f, 0.2f);
+	_program->setVec3("uLight.diffuse", 0.5f, 0.5f, 0.5f); // darkened
+	_program->setVec3("uLight.specular", 1.0f, 1.0f, 1.0f);
 
 	{
 		glm::mat4 matModel(1.0f);
