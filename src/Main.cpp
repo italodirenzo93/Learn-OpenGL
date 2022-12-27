@@ -14,6 +14,7 @@ float lastFrameTime = 0.0f;
 // Camera
 float cameraSpeed = 6.0f;
 std::shared_ptr<Camera> camera = nullptr;
+bool bIsFirstMouse = true;
 
 void processInput(GLFWwindow *window)
 {
@@ -67,7 +68,6 @@ void scrollCallback(GLFWwindow *window, double xOffset, double yOffset)
 
 float lastX = WIDTH / 2.0f;
 float lastY = HEIGHT / 2.0f;
-bool bIsFirstMouse = true;
 
 void mouseCallback(GLFWwindow *window, double xPos, double yPos)
 {
@@ -109,9 +109,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-#ifndef NDEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-#endif
 
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Learn OpenGL", NULL, NULL);

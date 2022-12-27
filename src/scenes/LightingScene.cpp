@@ -90,13 +90,20 @@ void LightingScene::render(float deltaTime)
 	_program->setMat4("uMatProjection", _camera->getProjectionMatrix());
 	_program->setMat4("uMatView", _camera->getViewMatrix());
 
-	_program->setVec3("uObjectColor", 1.0f, 0.5f, 0.31f);
 	_program->setVec3("uLightColor", 1.0f, 1.0f, 1.0f);
 	_program->setVec3("uLightPos", _lightPos);
 	_program->setVec3("uViewPos", _camera->position);
 
+	_program->setVec3("uMaterial.ambient", 1.0f, 0.5f, 0.31f);
+	_program->setVec3("uMaterial.diffuse", 1.0f, 0.5f, 0.31f);
+	_program->setVec3("uMaterial.specular", 0.5f, 0.5f, 0.5f);
+	_program->setFloat("uMaterial.shininess", 32.0f);
+
 	{
-		_program->setMat4("uMatModel", glm::mat4(1.0f));
+		glm::mat4 matModel(1.0f);
+		_program->setMat4("uMatModel", matModel);
+		_program->setMat4("uMatNormal", glm::transpose(glm::inverse(matModel)));
+
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
