@@ -2,6 +2,7 @@
 #define LIGHTINGSCENE_H
 
 #include "Scene.h"
+#include "Material.h"
 
 class LightingScene : public Scene
 {
@@ -14,8 +15,9 @@ public:
 private:
 	std::shared_ptr<Camera> _camera;
 	std::unique_ptr<Shader> _program, _lightProgram;
+	Material _material;
 
-	unsigned int _vao, _vbo, _lightVao;
+	unsigned int _vao, _vbo, _lightVao, _diffuseMap;
 
 	NON_COPYABLE_OR_MOVABLE_CLASS(LightingScene)
 };

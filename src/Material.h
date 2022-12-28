@@ -7,13 +7,15 @@
 class Material
 {
 public:
-	glm::vec3 ambient;
 	glm::vec3 diffuse;
+	int diffuseMap = -1;
 	glm::vec3 specular;
 	float shininess = 32.0f;
 
-	Material(const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &specular, float shininess)
-		: ambient(ambient), diffuse(diffuse), specular(specular), shininess(shininess) {}
+	Material() {}
+
+	Material(const glm::vec3 &diffuse, const glm::vec3 &specular, float shininess)
+		: diffuse(diffuse), specular(specular), shininess(shininess) {}
 
 	void apply(const Shader &program, const std::string &uniformName) const;
 
