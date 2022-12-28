@@ -89,7 +89,9 @@ LightingScene::~LightingScene()
 
 void LightingScene::render(float deltaTime)
 {
-	lightPos.x = float(sin(glfwGetTime()) * 1.5);
+	float fTime = static_cast<float>(glfwGetTime());
+
+	lightPos.x = sinf(fTime * 1.5f);
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClearDepth(1.0f);
@@ -99,16 +101,21 @@ void LightingScene::render(float deltaTime)
 
 	_program->setMat4("uMatProjection", _camera->getProjectionMatrix());
 	_program->setMat4("uMatView", _camera->getViewMatrix());
-
-	_program->setVec3("uLightColor", 1.0f, 1.0f, 1.0f);
 	_program->setVec3("uLightPos", lightPos);
 	_program->setVec3("uViewPos", _camera->position);
 
 	orangeMaterial.apply(*_program, "uMaterial");
 
+	glm::vec3 lightColor;
+	lightColor.x = sinf(fTime * 2.0f);
+	lightColor.y = sinf(fTime * 0.7f);
+	lightColor.z = sinf(fTime * 1.3f);
+	glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+
 	_program->setVec3("uLight.position", lightPos);
-	_program->setVec3("uLight.ambient", 0.2f, 0.2f, 0.2f);
-	_program->setVec3("uLight.diffuse", 0.5f, 0.5f, 0.5f); // darkened
+	_program->setVec3("uLight.ambient", ambientColor);
+	_program->setVec3("uLight.diffuse", diffuseColor); // darkened
 	_program->setVec3("uLight.specular", 1.0f, 1.0f, 1.0f);
 
 	{
@@ -123,6 +130,7 @@ void LightingScene::render(float deltaTime)
 	_lightProgram->use();
 	_lightProgram->setMat4("uMatProjection", _camera->getProjectionMatrix());
 	_lightProgram->setMat4("uMatView", _camera->getViewMatrix());
+	_lightProgram->setVec3("uLightColor", lightColor);
 
 	{
 		glm::mat4 model = glm::mat4(1.0f);
