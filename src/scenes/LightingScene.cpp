@@ -88,6 +88,11 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 		std::cout << "Could not load diffuse map!" << std::endl;
 	}
 
+	if (!CreateTextureFromFile("./resources/textures/container2_specular.png", &_specularMap))
+	{
+		std::cout << "Could not load specular map!" << std::endl;
+	}
+
 	_program->use();
 	glGenVertexArrays(1, &_vao);
 	glBindVertexArray(_vao);
@@ -112,6 +117,7 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	_material.diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
 	_material.diffuseMap = 0; // corresponds to GL_TEXTURE0
 	_material.specular = glm::vec3(0.5f);
+	_material.specularMap = 1; // corresponds to GL_TEXTURE1
 	_material.shininess = 32.0f;
 }
 
@@ -119,6 +125,7 @@ LightingScene::~LightingScene()
 {
 	glDeleteBuffers(1, &_vbo);
 	glDeleteTextures(1, &_diffuseMap);
+	glDeleteTextures(1, &_specularMap);
 	glDeleteVertexArrays(1, &_vao);
 	glDeleteVertexArrays(1, &_lightVao);
 }
@@ -163,6 +170,9 @@ void LightingScene::render(float deltaTime)
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, _diffuseMap);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, _specularMap);
 
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);

@@ -10,6 +10,15 @@ void Material::apply(const Shader &program, const std::string &uniformName) cons
 	{
 		program.setVec3(std::format("{}.diffuse", uniformName), diffuse);
 	}
-	program.setVec3(std::format("{}.specular", uniformName), specular);
+
+	if (specularMap >= 0)
+	{
+		program.setInt(std::format("{}.specular", uniformName), specularMap);
+	}
+	else
+	{
+		program.setVec3(std::format("{}.specular", uniformName), specular);
+	}
+
 	program.setFloat(std::format("{}.shininess", uniformName), shininess);
 }

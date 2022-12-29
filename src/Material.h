@@ -10,6 +10,7 @@ public:
 	glm::vec3 diffuse;
 	int diffuseMap = -1;
 	glm::vec3 specular;
+	int specularMap = -1;
 	float shininess = 32.0f;
 
 	Material() {}

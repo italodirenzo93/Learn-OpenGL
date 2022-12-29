@@ -17,7 +17,7 @@ private:
 	std::unique_ptr<Shader> _program, _lightProgram;
 	Material _material;
 
-	unsigned int _vao, _vbo, _lightVao, _diffuseMap;
+	unsigned int _vao, _vbo, _lightVao, _diffuseMap, _specularMap;
 
 	NON_COPYABLE_OR_MOVABLE_CLASS(LightingScene)
 };
