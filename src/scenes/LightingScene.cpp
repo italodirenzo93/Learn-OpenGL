@@ -45,33 +45,33 @@ static constexpr unsigned int stride = 8 * sizeof(float);
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-bool CreateTextureFromFile(const char *fileName, GLuint *texture)
-{
-	int width, height, nChannels;
-	auto image = stbi_load(fileName, &width, &height, &nChannels, STBI_default);
-	if (image)
-	{
-		GLenum format = 0;
-		if (nChannels == 1)
-			format = GL_RED;
-		else if (nChannels == 3)
-			format = GL_RGB;
-		else if (nChannels == 4)
-			format = GL_RGBA;
+// bool CreateTextureFromFile(const char *fileName, GLuint *texture)
+// {
+// 	int width, height, nChannels;
+// 	auto image = stbi_load(fileName, &width, &height, &nChannels, STBI_default);
+// 	if (image)
+// 	{
+// 		GLenum format = 0;
+// 		if (nChannels == 1)
+// 			format = GL_RED;
+// 		else if (nChannels == 3)
+// 			format = GL_RGB;
+// 		else if (nChannels == 4)
+// 			format = GL_RGBA;
 
-		glGenTextures(1, texture);
-		glBindTexture(GL_TEXTURE_2D, *texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, 0);
+// 		glGenTextures(1, texture);
+// 		glBindTexture(GL_TEXTURE_2D, *texture);
+// 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
+// 		glGenerateMipmap(GL_TEXTURE_2D);
+// 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		stbi_image_free(image);
-		return true;
-	}
+// 		stbi_image_free(image);
+// 		return true;
+// 	}
 
-	stbi_image_free(image);
-	return false;
-}
+// 	stbi_image_free(image);
+// 	return false;
+// }
 
 LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	: _camera(camera)
@@ -83,12 +83,12 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	if (!CreateTextureFromFile("./resources/textures/container2.png", &_diffuseMap))
+	if (!Texture::createFromFile("./resources/textures/container2.png", _diffuseMap))
 	{
 		std::cout << "Could not load diffuse map!" << std::endl;
 	}
 
-	if (!CreateTextureFromFile("./resources/textures/container2_specular.png", &_specularMap))
+	if (!Texture::createFromFile("./resources/textures/container2_specular.png", _specularMap))
 	{
 		std::cout << "Could not load specular map!" << std::endl;
 	}
@@ -124,8 +124,6 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 LightingScene::~LightingScene()
 {
 	glDeleteBuffers(1, &_vbo);
-	glDeleteTextures(1, &_diffuseMap);
-	glDeleteTextures(1, &_specularMap);
 	glDeleteVertexArrays(1, &_vao);
 	glDeleteVertexArrays(1, &_lightVao);
 }
@@ -147,8 +145,6 @@ void LightingScene::render(float deltaTime)
 	_program->setVec3("uLightPos", lightPos);
 	_program->setVec3("uViewPos", _camera->position);
 
-	_material.apply(*_program, "uMaterial");
-
 	// glm::vec3 lightColor;
 	// lightColor.x = sinf(fTime * 2.0f);
 	// lightColor.y = sinf(fTime * 0.7f);
@@ -168,11 +164,18 @@ void LightingScene::render(float deltaTime)
 		_program->setMat4("uMatModel", matModel);
 		_program->setMat4("uMatNormal", glm::transpose(glm::inverse(matModel)));
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _diffuseMap);
+		// glActiveTexture(GL_TEXTURE0);
+		// glBindTexture(GL_TEXTURE_2D, _diffuseMap.getID());
 
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, _specularMap);
+		// glActiveTexture(GL_TEXTURE1);
+		// glBindTexture(GL_TEXTURE_2D, _specularMap.getID());
+
+		_diffuseMap.activate(GL_TEXTURE0);
+		_specularMap.activate(GL_TEXTURE1);
+
+		_material.diffuseMap = 0;
+		_material.specularMap = 1;
+		_material.apply(*_program, "uMaterial");
 
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);

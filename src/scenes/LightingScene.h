@@ -3,6 +3,7 @@
 
 #include "Scene.h"
 #include "Material.h"
+#include "Texture.h"
 
 class LightingScene : public Scene
 {
@@ -16,8 +17,9 @@ private:
 	std::shared_ptr<Camera> _camera;
 	std::unique_ptr<Shader> _program, _lightProgram;
 	Material _material;
+	Texture _diffuseMap, _specularMap;
 
-	unsigned int _vao, _vbo, _lightVao, _diffuseMap, _specularMap;
+	unsigned int _vao, _vbo, _lightVao;
 
 	NON_COPYABLE_OR_MOVABLE_CLASS(LightingScene)
 };
