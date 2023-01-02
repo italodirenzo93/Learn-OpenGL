@@ -44,7 +44,7 @@ static const unsigned int indices[] = {
 	1, 2, 3	 // second triangle
 };
 
-glm::vec3 cubePositions[] = {
+static const glm::vec3 cubePositions[] = {
 	glm::vec3(0.0f, 0.0f, 0.0f),
 	glm::vec3(2.0f, 5.0f, -15.0f),
 	glm::vec3(-1.5f, -2.2f, -2.5f),

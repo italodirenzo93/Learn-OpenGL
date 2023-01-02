@@ -43,7 +43,19 @@ static const float vertices[] = {
 
 static constexpr unsigned int stride = 8 * sizeof(float);
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+static const glm::vec3 cubePositions[] = {
+	glm::vec3(0.0f, 0.0f, 0.0f),
+	glm::vec3(2.0f, 5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f, 3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f, 2.0f, -2.5f),
+	glm::vec3(1.5f, 0.2f, -1.5f),
+	glm::vec3(-1.3f, 1.0f, -1.5f)};
+
+static glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 // bool CreateTextureFromFile(const char *fileName, GLuint *texture)
 // {
@@ -154,13 +166,19 @@ void LightingScene::render(float deltaTime)
 	glm::vec3 lightAmbient(0.2f);
 	glm::vec3 lightDiffuse(0.5f);
 
-	_program->setVec3("uLight.position", lightPos);
+	// _program->setVec3("uLight.position", lightPos);
+	_program->setVec3("uLight.direction", -0.2f, -1.0f, -0.3f);
 	_program->setVec3("uLight.ambient", lightAmbient);
 	_program->setVec3("uLight.diffuse", lightDiffuse); // darkened
 	_program->setVec3("uLight.specular", 1.0f, 1.0f, 1.0f);
 
+	for (unsigned int i = 0; i < 10; i++)
 	{
 		glm::mat4 matModel(1.0f);
+		matModel = glm::translate(matModel, cubePositions[i]);
+		float angle = 20.0f * i;
+		matModel = glm::rotate(matModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
 		_program->setMat4("uMatModel", matModel);
 		_program->setMat4("uMatNormal", glm::transpose(glm::inverse(matModel)));
 
@@ -181,18 +199,18 @@ void LightingScene::render(float deltaTime)
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
-	_lightProgram->use();
-	_lightProgram->setMat4("uMatProjection", _camera->getProjectionMatrix());
-	_lightProgram->setMat4("uMatView", _camera->getViewMatrix());
-	// _lightProgram->setVec3("uLightColor", lightColor);
+	// _lightProgram->use();
+	// _lightProgram->setMat4("uMatProjection", _camera->getProjectionMatrix());
+	// _lightProgram->setMat4("uMatView", _camera->getViewMatrix());
+	// // _lightProgram->setVec3("uLightColor", lightColor);
 
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f));
-		_lightProgram->setMat4("uMatModel", model);
+	// {
+	// 	glm::mat4 model = glm::mat4(1.0f);
+	// 	model = glm::translate(model, lightPos);
+	// 	model = glm::scale(model, glm::vec3(0.2f));
+	// 	_lightProgram->setMat4("uMatModel", model);
 
-		glBindVertexArray(_lightVao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
+	// 	glBindVertexArray(_lightVao);
+	// 	glDrawArrays(GL_TRIANGLES, 0, 36);
+	// }
 }
