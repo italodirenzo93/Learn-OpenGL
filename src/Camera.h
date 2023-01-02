@@ -33,8 +33,7 @@ protected:
 	void updateDirection();
 
 private:
-	NON_COPYABLE_CLASS(Camera);
-	NON_MOVABLE_CLASS(Camera);
+	NON_COPYABLE_OR_MOVABLE_CLASS(Camera)
 };
 
 #endif
