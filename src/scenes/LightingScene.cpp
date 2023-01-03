@@ -151,7 +151,7 @@ void LightingScene::render(float deltaTime)
 	// _program->setFloat("uLight.outerCutoff", glm::cos(glm::radians(17.5f)));
 
 	// Render all the point lights
-	for (unsigned int i = 0; i < pointLights.size(); i++)
+	for (size_t i = 0; i < pointLights.size(); i++)
 	{
 		_program->use();
 		_program->setVec3(std::format("uPointLights[{}].position", i), pointLights[i]);
@@ -162,7 +162,7 @@ void LightingScene::render(float deltaTime)
 
 		_program->setFloat(std::format("uPointLights[{}].constant", i), 1.0f);
 		_program->setFloat(std::format("uPointLights[{}].linear", i), 0.09f);
-		_program->setFloat(std::format("uPointLights[{}].linear", i), 0.032f);
+		_program->setFloat(std::format("uPointLights[{}].quadratic", i), 0.032f);
 
 		_lightProgram->use();
 		_lightProgram->setMat4("uMatProjection", _camera->getProjectionMatrix());
@@ -181,7 +181,7 @@ void LightingScene::render(float deltaTime)
 	}
 
 	// Render the cubes
-	for (unsigned int i = 0; i < cubePositions.size(); i++)
+	for (size_t i = 0; i < cubePositions.size(); i++)
 	{
 		glm::mat4 matModel(1.0f);
 		matModel = glm::translate(matModel, cubePositions[i]);
