@@ -9,12 +9,12 @@ public:
 	Texture();
 	~Texture();
 
-	unsigned int getID() const { return ID; }
+	uint32_t getID() const { return ID; }
 
 	void activate(GLenum textureUnit) const;
 
 private:
-	unsigned int ID;
+	uint32_t ID;
 
 public:
 	static bool createFromFile(const char *fileName, Texture &texture);

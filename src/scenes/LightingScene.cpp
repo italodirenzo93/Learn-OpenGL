@@ -68,7 +68,7 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	_program = std::make_unique<Shader>("./resources/shaders/lit.vert", "./resources/shaders/lit.frag");
 	_lightProgram = std::make_unique<Shader>("./resources/shaders/basic.vert", "./resources/shaders/light.frag");
 
-	_vbo.setData(vertices.size(), vertices.data());
+	_vbo.setData(vertices);
 
 	if (!Texture::createFromFile("./resources/textures/container2.png", _diffuseMap))
 	{
@@ -176,7 +176,7 @@ void LightingScene::render(float deltaTime)
 			_lightProgram->setMat4("uMatModel", model);
 
 			glBindVertexArray(_lightVao);
-			glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+			glDrawArrays(GL_TRIANGLES, 0, static_cast<uint32_t>(vertices.size()));
 		}
 	}
 
@@ -200,6 +200,6 @@ void LightingScene::render(float deltaTime)
 		_material.apply(*_program, "uMaterial");
 
 		glBindVertexArray(_vao);
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+		glDrawArrays(GL_TRIANGLES, 0, static_cast<uint32_t>(vertices.size()));
 	}
 }

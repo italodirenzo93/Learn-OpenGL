@@ -6,10 +6,10 @@
 class Shader
 {
 public:
-	unsigned int ID;
-
 	explicit Shader(const char *vertexPath, const char *fragmentPath);
 	~Shader();
+
+	uint32_t getID() const { return ID; }
 
 	void use();
 	void setBool(const std::string &name, bool value) const;
@@ -20,6 +20,8 @@ public:
 	void setVec3(const std::string &name, float x, float y, float z) const;
 
 private:
+	uint32_t ID;
+
 	NON_COPYABLE_OR_MOVABLE_CLASS(Shader)
 };
 

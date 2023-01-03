@@ -17,15 +17,12 @@ public:
 		glDeleteBuffers(1, &ID);
 	}
 
-	unsigned int getID() const { return ID; }
+	uint32_t getID() const { return ID; }
 
-	void setData(size_t size, const T *data) const
+	void setData(const std::vector<T> &data) const
 	{
-		if (size == 0 || data == nullptr)
-			return;
-
 		glBindBuffer(GL_ARRAY_BUFFER, ID);
-		glBufferData(GL_ARRAY_BUFFER, size * sizeof(T), data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<uint32_t>(sizeof(T) * data.size()), reinterpret_cast<const void *>(data.data()), GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
@@ -33,7 +30,7 @@ public:
 	void unbind() const { glBindBuffer(GL_ARRAY_BUFFER, 0); }
 
 private:
-	unsigned int ID;
+	uint32_t ID;
 };
 
 #endif

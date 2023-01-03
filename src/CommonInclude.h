@@ -15,12 +15,15 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 
-// STL headers
-#include <iostream>
+// C++ STL headers
 #include <format>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+
+// C headers
+#include <cstdint>
 
 #define NON_COPYABLE_CLASS(className)      \
 	className(const className &) = delete; \
