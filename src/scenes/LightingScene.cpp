@@ -1,5 +1,6 @@
 #include "LightingScene.h"
 #include "Material.h"
+#include "PointLight.h"
 
 static const std::vector<Vertex> vertices{
 	// positions // normals // texture coords
@@ -56,11 +57,11 @@ static const std::vector<glm::vec3> cubePositions{
 
 static glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-static const std::vector<glm::vec3> pointLights{
-	glm::vec3(0.7f, 0.2f, 2.0f),
-	glm::vec3(2.3f, -3.3f, -4.0f),
-	glm::vec3(-4.0f, 2.0f, -12.0f),
-	glm::vec3(0.0f, 0.0f, -3.0f)};
+static const std::vector<PointLight> pointLights{
+	PointLight(glm::vec3(0.7f, 0.2f, 2.0f)),
+	PointLight(glm::vec3(2.3f, -3.3f, -4.0f)),
+	PointLight(glm::vec3(-4.0f, 2.0f, -12.0f)),
+	PointLight(glm::vec3(0.0f, 0.0f, -3.0f))};
 
 LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	: _camera(camera)
@@ -133,7 +134,6 @@ void LightingScene::render(float deltaTime)
 
 	_program->setMat4("uMatProjection", _camera->getProjectionMatrix());
 	_program->setMat4("uMatView", _camera->getViewMatrix());
-	_program->setVec3("uLightPos", lightPos);
 	_program->setVec3("uViewPos", _camera->position);
 
 	// glm::vec3 lightColor;
@@ -154,15 +154,9 @@ void LightingScene::render(float deltaTime)
 	for (size_t i = 0; i < pointLights.size(); i++)
 	{
 		_program->use();
-		_program->setVec3(std::format("uPointLights[{}].position", i), pointLights[i]);
 
-		_program->setVec3(std::format("uPointLights[{}].ambient", i), 0.2f, 0.2f, 0.2f);
-		_program->setVec3(std::format("uPointLights[{}].diffuse", i), 0.5f, 0.5f, 0.5f); // darkened
-		_program->setVec3(std::format("uPointLights[{}].specular", i), 1.0f, 1.0f, 1.0f);
-
-		_program->setFloat(std::format("uPointLights[{}].constant", i), 1.0f);
-		_program->setFloat(std::format("uPointLights[{}].linear", i), 0.09f);
-		_program->setFloat(std::format("uPointLights[{}].quadratic", i), 0.032f);
+		auto shaderParameterName = std::format("uPointLights[{}]", i);
+		pointLights[i].apply(*_program, shaderParameterName);
 
 		_lightProgram->use();
 		_lightProgram->setMat4("uMatProjection", _camera->getProjectionMatrix());
@@ -171,7 +165,7 @@ void LightingScene::render(float deltaTime)
 
 		{
 			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, pointLights[i]);
+			model = glm::translate(model, pointLights[i].position);
 			model = glm::scale(model, glm::vec3(0.2f));
 			_lightProgram->setMat4("uMatModel", model);
 
