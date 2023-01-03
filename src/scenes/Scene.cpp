@@ -137,7 +137,7 @@ BasicScene::BasicScene(std::shared_ptr<Camera> camera)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Configure texture units
-	program->use();
+	program->activate();
 	program->setInt("texture1", 0);
 	program->setInt("texture2", 1);
 	glUseProgram(0);
@@ -156,7 +156,7 @@ BasicScene::~BasicScene()
 
 void BasicScene::render(float deltaTime)
 {
-	program->use();
+	program->activate();
 
 	glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
 	glClearDepthf(1.0f);
@@ -188,5 +188,6 @@ void BasicScene::render(float deltaTime)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
-	glUseProgram(0);
+
+	program->deactivate();
 }

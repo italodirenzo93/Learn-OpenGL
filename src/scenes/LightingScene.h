@@ -14,13 +14,13 @@ struct Vertex
 
 	Vertex()
 		: x(0.0f), y(0.0f), z(0.0f),
-		normalX(0.0f), normalY(0.0f), normalZ(0.0f),
-		texCoordX(0.0f), texCoordY(0.0f) {}
+		  normalX(0.0f), normalY(0.0f), normalZ(0.0f),
+		  texCoordX(0.0f), texCoordY(0.0f) {}
 
 	Vertex(float x, float y, float z, float normalX, float normalY, float normalZ, float texCoordX, float texCoordY)
 		: x(x), y(y), z(z),
-		normalX(normalX), normalY(normalY), normalZ(normalZ),
-		texCoordX(texCoordX), texCoordY(texCoordY) {}
+		  normalX(normalX), normalY(normalY), normalZ(normalZ),
+		  texCoordX(texCoordX), texCoordY(texCoordY) {}
 };
 
 class LightingScene : public Scene
@@ -36,9 +36,9 @@ private:
 	std::unique_ptr<Shader> _program, _lightProgram;
 	Material _material;
 	Texture _diffuseMap, _specularMap;
-	Buffer<Vertex> _vbo;
+	ArrayBuffer<Vertex> _vbo;
 
-	unsigned int _vao, _lightVao;
+	uint32_t _vao, _lightVao;
 
 	NON_COPYABLE_OR_MOVABLE_CLASS(LightingScene)
 };

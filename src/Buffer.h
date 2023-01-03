@@ -3,7 +3,7 @@
 
 #include "CommonInclude.h"
 
-template <typename T>
+template <typename T, uint32_t BufferType>
 class Buffer
 {
 public:
@@ -21,16 +21,26 @@ public:
 
 	void setData(const std::vector<T> &data) const
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, ID);
-		glBufferData(GL_ARRAY_BUFFER, static_cast<uint32_t>(sizeof(T) * data.size()), reinterpret_cast<const void *>(data.data()), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(BufferType, ID);
+		glBufferData(BufferType, static_cast<uint32_t>(sizeof(T) * data.size()), reinterpret_cast<const void *>(data.data()), GL_STATIC_DRAW);
+		glBindBuffer(BufferType, 0);
 	}
 
-	void bind() const { glBindBuffer(GL_ARRAY_BUFFER, ID); }
-	void unbind() const { glBindBuffer(GL_ARRAY_BUFFER, 0); }
+	void bind() const { glBindBuffer(BufferType, ID); }
+	void unbind() const { glBindBuffer(BufferType, 0); }
 
 private:
 	uint32_t ID;
+};
+
+template <typename T>
+class ArrayBuffer : public Buffer<T, GL_ARRAY_BUFFER>
+{
+};
+
+template <typename T>
+class ElementBuffer : public Buffer<T, GL_ELEMENT_ARRAY_BUFFER>
+{
 };
 
 #endif

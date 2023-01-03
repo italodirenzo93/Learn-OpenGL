@@ -88,9 +88,14 @@ Shader::~Shader()
 	glDeleteProgram(ID);
 }
 
-void Shader::use() const
+void Shader::activate() const
 {
 	glUseProgram(ID);
+}
+
+void Shader::deactivate() const
+{
+	glUseProgram(0);
 }
 
 void Shader::setBool(const std::string &name, bool value) const

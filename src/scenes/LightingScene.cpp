@@ -81,7 +81,7 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 		std::cout << "Could not load specular map!" << std::endl;
 	}
 
-	_program->use();
+	_program->activate();
 
 	_vbo.bind();
 
@@ -97,7 +97,7 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void *)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-	_lightProgram->use();
+	_lightProgram->activate();
 	glGenVertexArrays(1, &_lightVao);
 	glBindVertexArray(_lightVao);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
@@ -130,7 +130,7 @@ void LightingScene::render(float deltaTime)
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	_program->use();
+	_program->activate();
 
 	_program->setMat4("uMatProjection", _camera->getProjectionMatrix());
 	_program->setMat4("uMatView", _camera->getViewMatrix());
@@ -153,16 +153,15 @@ void LightingScene::render(float deltaTime)
 	// Render all the point lights
 	for (size_t i = 0; i < pointLights.size(); i++)
 	{
-		_program->use();
-
-        std::string shaderParamName = "uPointLights[" + std::to_string(i) + "]";
+		_program->activate();
+		std::string shaderParamName = "uPointLights[" + std::to_string(i) + "]";
 		pointLights[i].apply(*_program, shaderParamName);
+		_program->deactivate();
 
-		_lightProgram->use();
+		_lightProgram->activate();
 		_lightProgram->setMat4("uMatProjection", _camera->getProjectionMatrix());
 		_lightProgram->setMat4("uMatView", _camera->getViewMatrix());
 		// _lightProgram->setVec3("uLightColor", lightColor);
-
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, pointLights[i].position);
@@ -172,6 +171,7 @@ void LightingScene::render(float deltaTime)
 			glBindVertexArray(_lightVao);
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<uint32_t>(vertices.size()));
 		}
+		_lightProgram->deactivate();
 	}
 
 	// Render the cubes
@@ -182,7 +182,7 @@ void LightingScene::render(float deltaTime)
 		float angle = 20.0f * i;
 		matModel = glm::rotate(matModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
-		_program->use();
+		_program->activate();
 		_program->setMat4("uMatModel", matModel);
 		_program->setMat4("uMatNormal", glm::transpose(glm::inverse(matModel)));
 
