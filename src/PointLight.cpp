@@ -2,8 +2,6 @@
 
 void PointLight::apply(const Shader &program, const std::string &uniformName) const
 {
-	program.activate();
-
 	program.setVec3(uniformName + ".position", position);
 
 	program.setVec3(uniformName + ".ambient", ambient);
@@ -13,6 +11,4 @@ void PointLight::apply(const Shader &program, const std::string &uniformName) co
 	program.setFloat(uniformName + ".constant", constant);
 	program.setFloat(uniformName + ".linear", linear);
 	program.setFloat(uniformName + ".quadratic", quadratic);
-
-	program.deactivate();
 }

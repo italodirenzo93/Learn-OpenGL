@@ -82,7 +82,6 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	}
 
 	_program->activate();
-
 	_vbo.bind();
 
 	glGenVertexArrays(1, &_vao);
@@ -97,15 +96,19 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void *)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
+	_vbo.unbind();
+	_program->deactivate();
+
 	_lightProgram->activate();
+	_vbo.bind();
+
 	glGenVertexArrays(1, &_lightVao);
 	glBindVertexArray(_lightVao);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
 	_vbo.unbind();
-
-	glUseProgram(0);
+	_lightProgram->deactivate();
 
 	_material.diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
 	_material.diffuseMap = 0; // corresponds to GL_TEXTURE0
@@ -195,5 +198,7 @@ void LightingScene::render(float deltaTime)
 
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_TRIANGLES, 0, static_cast<uint32_t>(vertices.size()));
+
+		_program->deactivate();
 	}
 }
