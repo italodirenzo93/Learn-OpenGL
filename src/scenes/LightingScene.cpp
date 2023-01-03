@@ -155,8 +155,8 @@ void LightingScene::render(float deltaTime)
 	{
 		_program->use();
 
-		auto shaderParameterName = std::format("uPointLights[{}]", i);
-		pointLights[i].apply(*_program, shaderParameterName);
+        std::string shaderParamName = "uPointLights[" + std::to_string(i) + "]";
+		pointLights[i].apply(*_program, shaderParamName);
 
 		_lightProgram->use();
 		_lightProgram->setMat4("uMatProjection", _camera->getProjectionMatrix());

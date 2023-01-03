@@ -4,21 +4,21 @@ void Material::apply(const Shader &program, const std::string &uniformName) cons
 {
 	if (diffuseMap >= 0)
 	{
-		program.setInt(std::format("{}.diffuse", uniformName), diffuseMap);
+		program.setInt(uniformName + ".diffuse", diffuseMap);
 	}
 	else
 	{
-		program.setVec3(std::format("{}.diffuse", uniformName), diffuse);
+		program.setVec3(uniformName + ".diffuse", diffuse);
 	}
 
 	if (specularMap >= 0)
 	{
-		program.setInt(std::format("{}.specular", uniformName), specularMap);
+		program.setInt(uniformName + ".specular", specularMap);
 	}
 	else
 	{
-		program.setVec3(std::format("{}.specular", uniformName), specular);
+		program.setVec3(uniformName + ".specular", specular);
 	}
 
-	program.setFloat(std::format("{}.shininess", uniformName), shininess);
+	program.setFloat(uniformName + ".shininess", shininess);
 }

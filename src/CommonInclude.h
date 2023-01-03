@@ -16,7 +16,6 @@
 #include <stb_image.h>
 
 // C++ STL headers
-#include <format>
 #include <iostream>
 #include <memory>
 #include <string>
