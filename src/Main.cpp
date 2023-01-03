@@ -5,8 +5,8 @@
 #include "scenes/Scene.h"
 #include "scenes/LightingScene.h"
 
-constexpr int WIDTH = 1024;
-constexpr int HEIGHT = 720;
+static constexpr int WIDTH = 1024;
+static constexpr int HEIGHT = 720;
 
 float deltaTime = 0.0f;
 float lastFrameTime = 0.0f;
@@ -105,6 +105,12 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	}
 }
 
+void framebufferSizeCallback(GLFWwindow *window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+	camera->aspectRatio = float(width) / float(height);
+}
+
 int main(void)
 {
 	GLFWwindow *window;
@@ -129,6 +135,7 @@ int main(void)
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1);
 
 	// Hide the mouse cursor
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -137,6 +144,7 @@ int main(void)
 	glfwSetScrollCallback(window, scrollCallback);
 	glfwSetCursorPosCallback(window, mouseCallback);
 	glfwSetKeyCallback(window, keyCallback);
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
 	/* Initialize GLAD */
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -176,17 +184,17 @@ int main(void)
 		lastFrameTime = now;
 
 		/* ImGui Frame */
-		// ImGui_ImplOpenGL3_NewFrame();
-		// ImGui_ImplGlfw_NewFrame();
-		// ImGui::NewFrame();
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
 		// ImGui::ShowDemoWindow();
-		// ImGui::Render();
+		ImGui::Render();
 
 		/* Render here */
 		scene->render(deltaTime);
 
 		/* ImGui Render */
-		// ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
