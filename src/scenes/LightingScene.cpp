@@ -1,9 +1,7 @@
 #include "LightingScene.h"
 #include "Material.h"
 
-#include <array>
-
-static const std::array<Vertex, 36> vertices{
+static const std::vector<Vertex> vertices{
 	// positions // normals // texture coords
 	Vertex(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
 	Vertex(0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f),
@@ -44,7 +42,7 @@ static const std::array<Vertex, 36> vertices{
 
 static constexpr unsigned int stride = sizeof(Vertex);
 
-static const std::array<glm::vec3, 10> cubePositions{
+static const std::vector<glm::vec3> cubePositions{
 	glm::vec3(0.0f, 0.0f, 0.0f),
 	glm::vec3(2.0f, 5.0f, -15.0f),
 	glm::vec3(-1.5f, -2.2f, -2.5f),
@@ -57,6 +55,12 @@ static const std::array<glm::vec3, 10> cubePositions{
 	glm::vec3(-1.3f, 1.0f, -1.5f)};
 
 static glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+static const std::vector<glm::vec3> pointLights{
+	glm::vec3(0.7f, 0.2f, 2.0f),
+	glm::vec3(2.3f, -3.3f, -4.0f),
+	glm::vec3(-4.0f, 2.0f, -12.0f),
+	glm::vec3(0.0f, 0.0f, -3.0f)};
 
 LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	: _camera(camera)
@@ -138,31 +142,53 @@ void LightingScene::render(float deltaTime)
 	// lightColor.z = sinf(fTime * 1.3f);
 	// glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
 	// glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
-	glm::vec3 lightAmbient(0.2f);
-	glm::vec3 lightDiffuse(0.5f);
 
 	// _program->setVec3("uLight.position", lightPos);
 	// _program->setVec3("uLight.direction", -0.2f, -1.0f, -0.3f);
-	_program->setVec3("uLight.position", _camera->position);
-	_program->setVec3("uLight.direction", _camera->getForwardVector());
-	_program->setFloat("uLight.cutoff", glm::cos(glm::radians(12.5f)));
-	_program->setFloat("uLight.outerCutoff", glm::cos(glm::radians(17.5f)));
+	// _program->setVec3("uLight.position", _camera->position);
+	// _program->setVec3("uLight.direction", _camera->getForwardVector());
+	// _program->setFloat("uLight.cutoff", glm::cos(glm::radians(12.5f)));
+	// _program->setFloat("uLight.outerCutoff", glm::cos(glm::radians(17.5f)));
 
-	_program->setVec3("uLight.ambient", lightAmbient);
-	_program->setVec3("uLight.diffuse", lightDiffuse); // darkened
-	_program->setVec3("uLight.specular", 1.0f, 1.0f, 1.0f);
+	// Render all the point lights
+	for (unsigned int i = 0; i < pointLights.size(); i++)
+	{
+		_program->use();
+		_program->setVec3(std::format("uPointLights[{}].position", i), pointLights[i]);
 
-	// _program->setFloat("uLight.constant", 1.0f);
-	// _program->setFloat("uLight.linear", 0.09f);
-	// _program->setFloat("uLight.quadratic", 0.032f);
+		_program->setVec3(std::format("uPointLights[{}].ambient", i), 0.2f, 0.2f, 0.2f);
+		_program->setVec3(std::format("uPointLights[{}].diffuse", i), 0.5f, 0.5f, 0.5f); // darkened
+		_program->setVec3(std::format("uPointLights[{}].specular", i), 1.0f, 1.0f, 1.0f);
 
-	for (unsigned int i = 0; i < 10; i++)
+		_program->setFloat(std::format("uPointLights[{}].constant", i), 1.0f);
+		_program->setFloat(std::format("uPointLights[{}].linear", i), 0.09f);
+		_program->setFloat(std::format("uPointLights[{}].linear", i), 0.032f);
+
+		_lightProgram->use();
+		_lightProgram->setMat4("uMatProjection", _camera->getProjectionMatrix());
+		_lightProgram->setMat4("uMatView", _camera->getViewMatrix());
+		// _lightProgram->setVec3("uLightColor", lightColor);
+
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, pointLights[i]);
+			model = glm::scale(model, glm::vec3(0.2f));
+			_lightProgram->setMat4("uMatModel", model);
+
+			glBindVertexArray(_lightVao);
+			glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+		}
+	}
+
+	// Render the cubes
+	for (unsigned int i = 0; i < cubePositions.size(); i++)
 	{
 		glm::mat4 matModel(1.0f);
 		matModel = glm::translate(matModel, cubePositions[i]);
 		float angle = 20.0f * i;
 		matModel = glm::rotate(matModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
+		_program->use();
 		_program->setMat4("uMatModel", matModel);
 		_program->setMat4("uMatNormal", glm::transpose(glm::inverse(matModel)));
 
@@ -175,20 +201,5 @@ void LightingScene::render(float deltaTime)
 
 		glBindVertexArray(_vao);
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-	}
-
-	_lightProgram->use();
-	_lightProgram->setMat4("uMatProjection", _camera->getProjectionMatrix());
-	_lightProgram->setMat4("uMatView", _camera->getViewMatrix());
-	// _lightProgram->setVec3("uLightColor", lightColor);
-
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f));
-		_lightProgram->setMat4("uMatModel", model);
-
-		glBindVertexArray(_lightVao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 }
