@@ -41,6 +41,7 @@ set(imgui-source ${imgui-directory}/imconfig.h
 )
 
 # Subprojects
+add_subdirectory(dependencies/assimp)
 add_subdirectory(dependencies/glad)
 add_subdirectory(dependencies/glfw)
 add_subdirectory(dependencies/stb_image)
@@ -50,7 +51,7 @@ add_subdirectory(dependencies/glm)
 file(GLOB_RECURSE source CONFIGURE_DEPENDS "src/*.h" "src/*.cpp")
 
 add_executable(CMakeGraphicsProject ${source} ${imgui-source})
-target_link_libraries(CMakeGraphicsProject ${OPENGL_LIBRARIES} glad glfw stb_image glm)
+target_link_libraries(CMakeGraphicsProject ${OPENGL_LIBRARIES} assimp glad glfw stb_image glm)
 target_include_directories(CMakeGraphicsProject PRIVATE ${imgui-directory})
 
 # Visual Studio Startup Project
