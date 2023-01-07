@@ -1,9 +1,9 @@
 #include "CommonInclude.h"
 
 #include "Camera.h"
-#include "Shader.h"
 #include "scenes/Scene.h"
-#include "scenes/LightingScene.h"
+//#include "scenes/LightingScene.h"
+#include "scenes/MeshLoadingScene.h"
 
 static constexpr int WIDTH = 1024;
 static constexpr int HEIGHT = 720;
@@ -111,7 +111,7 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 	camera->aspectRatio = float(width) / float(height);
 }
 
-int main(void)
+int main()
 {
 	GLFWwindow *window;
 
@@ -126,7 +126,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(WIDTH, HEIGHT, "Learn OpenGL", NULL, NULL);
+	window = glfwCreateWindow(WIDTH, HEIGHT, "Learn OpenGL", nullptr, nullptr);
 	if (!window)
 	{
 		glfwTerminate();
@@ -169,8 +169,11 @@ int main(void)
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
 	camera = std::make_shared<Camera>(float(WIDTH) / float(HEIGHT), glm::vec3(-2.50649f, 0.381334f, 3.36252f), glm::vec3(-45.0f, 1.0f, 0.0f));
-	// std::unique_ptr<Scene> scene(new BasicScene(camera));
-	std::unique_ptr<Scene> scene(new LightingScene(camera));
+
+    std::unique_ptr<Scene> scene;
+//    scene = std::make_unique<BasicScene>(camera);
+//    scene = std::make_unique<LightingScene>(camera);
+    scene = std::make_unique<MeshLoadingScene>(camera);
 
 	lastFrameTime = float(glfwGetTime());
 
@@ -179,7 +182,7 @@ int main(void)
 	{
 		processInput(window);
 
-		float now = float(glfwGetTime());
+		auto now = float(glfwGetTime());
 		deltaTime = now - lastFrameTime;
 		lastFrameTime = now;
 

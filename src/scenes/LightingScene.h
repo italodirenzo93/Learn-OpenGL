@@ -35,7 +35,7 @@ private:
 	std::shared_ptr<Camera> _camera;
 	std::unique_ptr<Shader> _program, _lightProgram;
 	Material _material;
-	Texture _diffuseMap, _specularMap;
+//	Texture _diffuseMap, _specularMap;
 	ArrayBuffer<Vertex> _vbo;
 
 	uint32_t _vao, _lightVao;

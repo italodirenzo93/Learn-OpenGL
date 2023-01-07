@@ -2,23 +2,26 @@
 
 void Material::apply(const Shader &program, const std::string &uniformName) const
 {
-	if (diffuseMap >= 0)
-	{
-		program.setInt(uniformName + ".diffuse", diffuseMap);
-	}
-	else
-	{
-		program.setVec3(uniformName + ".diffuse", diffuse);
-	}
+    {
+        auto texture = diffuse.lock();
+        if (texture)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture->getID());
 
-	if (specularMap >= 0)
-	{
-		program.setInt(uniformName + ".specular", specularMap);
-	}
-	else
-	{
-		program.setVec3(uniformName + ".specular", specular);
-	}
+            program.setInt(uniformName + ".diffuse", 0);
+        }
+    }
+    {
+        auto texture = specular.lock();
+        if (texture)
+        {
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, texture->getID());
+
+            program.setInt(uniformName + ".specular", 1);
+        }
+    }
 
 	program.setFloat(uniformName + ".shininess", shininess);
 }

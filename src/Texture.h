@@ -6,7 +6,7 @@
 class Texture
 {
 public:
-	Texture();
+	explicit Texture(const char* fileName);
 	~Texture();
 
 	uint32_t getID() const { return ID; }
@@ -15,9 +15,6 @@ public:
 
 private:
 	uint32_t ID;
-
-public:
-	static bool createFromFile(const char *fileName, Texture &texture);
 
 private:
 	NON_MOVABLE_CLASS(Texture)

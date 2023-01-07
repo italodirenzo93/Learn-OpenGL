@@ -70,16 +70,16 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	_lightProgram = std::make_unique<Shader>("./resources/shaders/basic.vert", "./resources/shaders/light.frag");
 
 	_vbo.setData(vertices);
-
-	if (!Texture::createFromFile("./resources/textures/container2.png", _diffuseMap))
-	{
-		std::cout << "Could not load diffuse map!" << std::endl;
-	}
-
-	if (!Texture::createFromFile("./resources/textures/container2_specular.png", _specularMap))
-	{
-		std::cout << "Could not load specular map!" << std::endl;
-	}
+//
+//	if (!Texture::createFromFile("./resources/textures/container2.png", _diffuseMap))
+//	{
+//		std::cout << "Could not load diffuse map!" << std::endl;
+//	}
+//
+//	if (!Texture::createFromFile("./resources/textures/container2_specular.png", _specularMap))
+//	{
+//		std::cout << "Could not load specular map!" << std::endl;
+//	}
 
 	_program->activate();
 	_vbo.bind();
@@ -110,10 +110,10 @@ LightingScene::LightingScene(std::shared_ptr<Camera> camera)
 	_vbo.unbind();
 	_lightProgram->deactivate();
 
-	_material.diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
-	_material.diffuseMap = 0; // corresponds to GL_TEXTURE0
-	_material.specular = glm::vec3(0.5f);
-	_material.specularMap = 1; // corresponds to GL_TEXTURE1
+//	_material.diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+//	_material.diffuseMap = 0; // corresponds to GL_TEXTURE0
+//	_material.specular = glm::vec3(0.5f);
+//	_material.specularMap = 1; // corresponds to GL_TEXTURE1
 	_material.shininess = 32.0f;
 }
 
@@ -189,11 +189,11 @@ void LightingScene::render(float deltaTime)
 		_program->setMat4("uMatModel", matModel);
 		_program->setMat4("uMatNormal", glm::transpose(glm::inverse(matModel)));
 
-		_diffuseMap.activate(GL_TEXTURE0);
-		_specularMap.activate(GL_TEXTURE1);
+//		_diffuseMap.activate(GL_TEXTURE0);
+//		_specularMap.activate(GL_TEXTURE1);
 
-		_material.diffuseMap = 0;
-		_material.specularMap = 1;
+//		_material.diffuseMap = 0;
+//		_material.specularMap = 1;
 		_material.apply(*_program, "uMaterial");
 
 		glBindVertexArray(_vao);
