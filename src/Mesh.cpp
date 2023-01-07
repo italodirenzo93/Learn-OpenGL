@@ -39,7 +39,7 @@ void Mesh::setupMesh() const
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
 
 	glBufferData(GL_ARRAY_BUFFER, static_cast<int32_t>(vertices.size() * sizeof(Vertex)), reinterpret_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<int32_t>(indices.size() * sizeof(Vertex)), reinterpret_cast<const void*>(indices.data()), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<int32_t>(indices.size() * sizeof(uint32_t)), reinterpret_cast<const void*>(indices.data()), GL_STATIC_DRAW);
 
 	// vertex position
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);

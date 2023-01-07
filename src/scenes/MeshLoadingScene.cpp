@@ -3,8 +3,9 @@
 #include <array>
 
 static constexpr uint32_t NUM_ELEMENTS = 36;
+static constexpr uint32_t STRIDE = 8;
 
-static const std::array<float, NUM_ELEMENTS * 8> vertices{
+static const std::array<float, NUM_ELEMENTS * STRIDE> vertices{
         0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
         0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
         -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
@@ -69,14 +70,17 @@ MeshLoadingScene::MeshLoadingScene(const std::shared_ptr<Camera> &camera)
     _diffuse = std::make_shared<Texture>("./resources/textures/container2.png");
     _specular = std::make_shared<Texture>("./resources/textures/container2_specular.png");
 
-    std::vector<Mesh::Vertex> vertexData;
-    for (uint32_t i = 0; i < NUM_ELEMENTS * 8; i += 8)
+    std::vector<Mesh::Vertex> vertexData(NUM_ELEMENTS);
+    for (uint32_t i = 0; i < NUM_ELEMENTS; i++)
     {
+        auto vi = i * STRIDE;
+
         Mesh::Vertex v = {};
-        v.position = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
-        v.normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
-        v.texCoords = glm::vec2(vertices[i + 6], vertices[i + 7]);
-        vertexData.push_back(v);
+        v.position = glm::vec3(vertices[vi], vertices[vi + 1], vertices[vi + 2]);
+        v.normal = glm::vec3(vertices[vi + 3], vertices[vi + 4], vertices[vi + 5]);
+        v.texCoords = glm::vec2(vertices[vi + 6], vertices[vi + 7]);
+
+        vertexData[i] = v;
     }
 
     std::vector<uint32_t> indexData(indices.begin(), indices.end());
