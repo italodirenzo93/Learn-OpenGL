@@ -119,11 +119,17 @@ int main()
 	if (!glfwInit())
 		return -1;
 
+#ifdef USE_OPENGL_ES
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+#else
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+#endif
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Learn OpenGL", nullptr, nullptr);
@@ -156,8 +162,11 @@ int main()
 			  << "GPU Vendor: " << glGetString(GL_VENDOR) << std::endl
 			  << "GPU Model: " << glGetString(GL_RENDERER) << std::endl;
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model)
+    stbi_set_flip_vertically_on_load(true);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
 	/* Initialize ImGui */
 	IMGUI_CHECKVERSION();
@@ -166,7 +175,11 @@ int main()
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
+#ifdef USE_OPENGL_ES
+    ImGui_ImplOpenGL3_Init("#version 300 es");
+#else
 	ImGui_ImplOpenGL3_Init("#version 330 core");
+#endif
 
 	camera = std::make_shared<Camera>(float(WIDTH) / float(HEIGHT), glm::vec3(-2.50649f, 0.381334f, 3.36252f), glm::vec3(-45.0f, 1.0f, 0.0f));
 

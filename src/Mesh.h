@@ -3,7 +3,6 @@
 
 #include "CommonInclude.h"
 #include "Shader.h"
-#include "Material.h"
 
 class Mesh
 {
@@ -15,26 +14,35 @@ public:
         glm::vec2 texCoords;
     };
 
-//    struct Texture
-//    {
-//        uint32_t id;
-//        std::string type;
-//    };
+    struct Texture
+    {
+        uint32_t id;
+        std::string type;
+        std::string path;
+    };
 
 public:
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
-	Material material;
+    std::vector<Texture> textures;
 
-	explicit Mesh(const std::vector<Vertex> &vertexData, const std::vector<uint32_t> &indexData, Material material);
+	explicit Mesh(const std::vector<Vertex> &vertexData, const std::vector<uint32_t> &indexData, const std::vector<Texture> &textures);
+    Mesh(const Mesh& other);
+    Mesh(Mesh&& other) noexcept;
 	~Mesh();
 
 	void draw(const Shader& program) const;
 
 private:
-	uint32_t _vbo, _vao, _ebo;
+	uint32_t _vbo = 0;
+    uint32_t _vao = 0;
+    uint32_t _ebo = 0;
 
 	void setupMesh() const;
+
+public:
+    Mesh& operator= (const Mesh& other);
+    Mesh& operator= (Mesh&& other) noexcept;
 };
 
 #endif

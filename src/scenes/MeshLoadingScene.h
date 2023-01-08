@@ -3,6 +3,7 @@
 
 #include "Camera.h"
 #include "Mesh.h"
+#include "Model.h"
 #include "Scene.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -19,10 +20,10 @@ private:
 	std::shared_ptr<Camera> _camera;
 	std::unique_ptr<Shader> _program;
 	std::unique_ptr<Mesh> _mesh;
+    std::unique_ptr<Model> _model;
 
     std::shared_ptr<Texture> _diffuse;
     std::shared_ptr<Texture> _specular;
-    Material _material;
 };
 
 #endif
