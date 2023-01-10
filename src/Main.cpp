@@ -195,6 +195,7 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		// ImGui::ShowDemoWindow();
+        scene->renderUi();
 		ImGui::Render();
 
 		/* Render here */

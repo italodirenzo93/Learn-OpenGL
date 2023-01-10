@@ -25,14 +25,15 @@
 #include <cstdint>
 
 #define NON_COPYABLE_CLASS(className)      \
-	className(const className &) = delete; \
-	void operator=(const className &) = delete;
+	className(const className&) = delete; \
+	className& operator=(const className&) = delete;
 
-#define NON_MOVABLE_CLASS(className) \
-	className(className &&) = delete;
+#define NON_MOVABLE_CLASS(className)    \
+	className(className&&) = delete;      \
+    className& operator=(className&&) = delete;
 
-#define NON_COPYABLE_OR_MOVABLE_CLASS(className) \
-	NON_COPYABLE_CLASS(className);               \
-	NON_MOVABLE_CLASS(className);
+#define NON_COPYABLE_OR_MOVABLE_CLASS(className)    \
+	NON_COPYABLE_CLASS(className)   \
+	NON_MOVABLE_CLASS(className)
 
 #endif

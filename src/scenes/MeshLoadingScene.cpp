@@ -66,33 +66,14 @@ static Light dirLight;
 MeshLoadingScene::MeshLoadingScene(const std::shared_ptr<Camera> &camera)
 {
     _camera = camera;
-    _program = std::make_unique<Shader>("./resources/shaders/lit.vert", "./resources/shaders/mesh.frag");
-//    _diffuse = std::make_shared<Texture>("./resources/textures/container2.png");
-//    _specular = std::make_shared<Texture>("./resources/textures/container2_specular.png");
-
+    _program = std::make_unique<Shader>("./resources/shaders/mesh.vert", "./resources/shaders/mesh.frag");
+    _outlineShader = std::make_unique<Shader>("./resources/shaders/mesh.vert", "./resources/shaders/single_color.frag");
     _model = std::make_unique<Model>("./resources/objects/backpack/backpack.obj");
 
-//    std::vector<Mesh::Vertex> vertexData(NUM_ELEMENTS);
-//    for (uint32_t i = 0; i < NUM_ELEMENTS; i++)
-//    {
-//        auto vi = i * STRIDE;
-//
-//        Mesh::Vertex v = {};
-//        v.position = glm::vec3(vertices[vi], vertices[vi + 1], vertices[vi + 2]);
-//        v.normal = glm::vec3(vertices[vi + 3], vertices[vi + 4], vertices[vi + 5]);
-//        v.texCoords = glm::vec2(vertices[vi + 6], vertices[vi + 7]);
-//
-//        vertexData[i] = v;
-//    }
+    glEnable(GL_STENCIL_TEST);
 
-//    std::vector<uint32_t> indexData(indices.begin(), indices.end());
-
-//    std::vector<Mesh::Texture> textures{
-//        Mesh::Texture{_diffuse->getID(), "texture_diffuse"},
-//        Mesh::Texture{_specular->getID(), "texture_specular"}
-//    };
-
-//    _mesh = std::make_unique<Mesh>(vertexData, indexData, textures);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearDepth(1.0f);
 }
 
 MeshLoadingScene::~MeshLoadingScene()
@@ -101,11 +82,15 @@ MeshLoadingScene::~MeshLoadingScene()
 
 void MeshLoadingScene::render(float deltaTime)
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     _program->activate();
+
+    glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments pass the stencil test
+    glStencilMask(0xFF); // enable writing to the stencil buffer
 
     _program->setVec3("uViewPos", _camera->position);
 
@@ -132,4 +117,25 @@ void MeshLoadingScene::render(float deltaTime)
     _model->draw(*_program);
 
     _program->deactivate();
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00); // disable writing to the stencil buffer
+    glDisable(GL_DEPTH_TEST);
+    {
+        _outlineShader->activate();
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(1.05f));
+
+        _outlineShader->setMat4("uMatProjection", _camera->getProjectionMatrix());
+        _outlineShader->setMat4("uMatView", _camera->getViewMatrix());
+        _outlineShader->setMat4("uMatModel", model);
+        _outlineShader->setMat4("uMatNormal", glm::transpose(glm::inverse(model)));
+
+        _model->draw(*_outlineShader);
+        _outlineShader->deactivate();
+    }
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glEnable(GL_DEPTH_TEST);
 }

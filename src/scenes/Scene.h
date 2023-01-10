@@ -9,6 +9,7 @@ class Scene
 {
 public:
 	virtual void render(float deltaTime) {}
+    virtual void renderUi() {}
 };
 
 class BasicScene : public Scene
