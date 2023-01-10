@@ -74,6 +74,10 @@ MeshLoadingScene::MeshLoadingScene(const std::shared_ptr<Camera> &camera)
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);
 }
 
 MeshLoadingScene::~MeshLoadingScene()
