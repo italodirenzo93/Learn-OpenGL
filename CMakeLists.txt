@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.3)
 project(CMakeGraphicsProject)
 
+set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+# Indication to the code that this is a debug build
+if (${IS_DEBUG_BUILD})
+    add_compile_definitions(__DEBUG__)
+endif()
+
 # OpenGL
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)

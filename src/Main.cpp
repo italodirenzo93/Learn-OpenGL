@@ -116,6 +116,8 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 	camera->aspectRatio = float(width) / float(height);
 }
 
+#ifdef __DEBUG__
+
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
                             unsigned int id,
@@ -163,6 +165,8 @@ void APIENTRY glDebugOutput(GLenum source,
     std::cout << std::endl;
 }
 
+#endif
+
 int main()
 {
 	GLFWwindow *window;
@@ -180,7 +184,9 @@ int main()
 #endif
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+#ifdef __DEBUG__
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
 
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Learn OpenGL", nullptr, nullptr);
@@ -222,6 +228,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
+#ifdef __DEBUG__
     // Configure debug callback if we got a debug context
     int glContextFlags; glGetIntegerv(GL_CONTEXT_FLAGS, &glContextFlags);
     if (glContextFlags & GL_CONTEXT_FLAG_DEBUG_BIT)
@@ -231,6 +238,7 @@ int main()
         glDebugMessageCallback(glDebugOutput, nullptr);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
+#endif
 
 	/* Initialize ImGui */
 	IMGUI_CHECKVERSION();
