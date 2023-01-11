@@ -63,6 +63,7 @@ void Mesh::draw(const Shader &program) const
         program.setInt(name, i);
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
+    glActiveTexture(GL_TEXTURE0);
 
     glBindVertexArray(_vao);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
@@ -71,7 +72,6 @@ void Mesh::draw(const Shader &program) const
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
 }
 
 void Mesh::setupMesh() const

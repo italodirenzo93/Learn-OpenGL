@@ -44,3 +44,17 @@ void Camera::updateDirection()
 	_direction.y = sin(glm::radians(_pitch));
 	_direction.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
 }
+
+void Camera::project(const Shader& shader) const
+{
+    shader.setVec3("uViewPos", position);
+    shader.setMat4("uMatProjection", getProjectionMatrix());
+    shader.setMat4("uMatView", getViewMatrix());
+}
+
+void Camera::unproject(const Shader& shader) const
+{
+    shader.setVec3("uViewPos", glm::vec3(0.0f));
+    shader.setMat4("uMatProjection", glm::identity<glm::mat4>());
+    shader.setMat4("uMatView", glm::identity<glm::mat4>());
+}

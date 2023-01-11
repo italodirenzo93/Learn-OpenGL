@@ -117,6 +117,5 @@ void main()
     // phase 3: spot light
     // result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
 
-//    FragColor = vec4(result, 1.0);
-    FragColor = texture(uMaterial.texture_diffuse1, TexCoords);
+    FragColor = vec4(result, 1.0);
 }

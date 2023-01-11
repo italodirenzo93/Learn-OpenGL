@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "CommonInclude.h"
+#include "Shader.h"
 
 class Camera
 {
@@ -24,6 +25,9 @@ public:
 
 	void setPitch(float pitch);
 	void setYaw(float yaw);
+
+    void project(const Shader& shader) const;
+    void unproject(const Shader& shader) const;
 
 protected:
 	glm::vec3 _direction;
