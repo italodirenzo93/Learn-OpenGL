@@ -21,8 +21,7 @@ private:
     const Camera& _camera;
     Shader _shader;
 
-    float _clearColor[3];
-    float _depthValue = 1.0f;
+    glm::vec3 _lightDir;
 
     NON_COPYABLE_OR_MOVABLE_CLASS(MultiCubeScene)
 };

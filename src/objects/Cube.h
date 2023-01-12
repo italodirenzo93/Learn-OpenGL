@@ -20,9 +20,16 @@ struct Transform
     glm::mat4 getModelMatrix() const
     {
         auto model = glm::identity<glm::mat4>();
+
         model = glm::translate(model, translation);
-//        model = glm::rotate(model, glm::angle(glm::quat(rotation)), glm::normalize(rotation));
+
+
+        model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
         model = glm::scale(model, scale);
+
         return model;
     }
 };
