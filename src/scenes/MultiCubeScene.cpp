@@ -9,8 +9,8 @@ MultiCubeScene::MultiCubeScene(const Camera& camera) : _camera(camera), _shader(
     memset(_clearColor, 0, 3);
 
     _cubes.emplace_back(glm::vec3(0.26f, 0.0f, 0.0f));
-//    _cubes.emplace_back(glm::vec3(0.0f, 1.0f, 0.0f));
-//    _cubes.emplace_back(glm::vec3(0.0f, 0.0f, 1.0f));
+    _cubes.emplace_back(glm::vec3(0.0f, 1.0f, 0.0f));
+    _cubes.emplace_back(glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
 void MultiCubeScene::render(float deltaTime)

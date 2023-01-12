@@ -21,7 +21,7 @@ struct Transform
     {
         auto model = glm::identity<glm::mat4>();
         model = glm::translate(model, translation);
-//        model = glm::rotate(model, 0.0f, glm::normalize(rotation));
+//        model = glm::rotate(model, glm::angle(glm::quat(rotation)), glm::normalize(rotation));
         model = glm::scale(model, scale);
         return model;
     }
@@ -40,10 +40,6 @@ public:
     void draw(const Shader& shader) const;
 
 private:
-    uint32_t _vao = 0;
-    uint32_t _vbo = 0;
-    uint32_t _ebo = 0;
-
     Mesh _mesh;
 };
 

@@ -41,14 +41,14 @@ static const array<uint32_t, NUM_ELEMENTS> g_indices{0,1,2,0,2,3,4,5,6,4,6,7,8,9
 
 static vector<Mesh::Vertex> transformVertexArray()
 {
-    vector<Mesh::Vertex> verts(NUM_ELEMENTS);
-    for (uint32_t i = 0; i < NUM_ELEMENTS; i += STRIDE)
+    vector<Mesh::Vertex> verts;
+    for (uint32_t i = 0; i < g_vertices.size(); i += STRIDE)
     {
-        Mesh::Vertex v;
+        Mesh::Vertex v = {};
         v.position = glm::vec3(g_vertices[i], g_vertices[i + 1], g_vertices[i + 2]);
         v.normal = glm::vec3(g_vertices[i + 3], g_vertices[i + 4], g_vertices[i + 5]);
         v.texCoords = glm::vec2(g_vertices[i + 6], g_vertices[i + 7]);
-        verts[i] = v;
+        verts.emplace_back(v);
     }
     return verts;
 }
