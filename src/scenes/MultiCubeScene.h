@@ -19,7 +19,6 @@ public:
 private:
     std::vector<Cube> _cubes;
     const Camera& _camera;
-    Shader _shader;
 
     glm::vec3 _lightDir;
 

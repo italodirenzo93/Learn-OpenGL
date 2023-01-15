@@ -7,6 +7,7 @@ class Shader
 {
 public:
 	explicit Shader(const char *vertexPath, const char *fragmentPath);
+    Shader(Shader&& other) noexcept;
 	~Shader();
 
 	uint32_t getID() const { return ID; }
@@ -21,9 +22,16 @@ public:
 	void setVec3(const std::string &name, float x, float y, float z) const;
 
 private:
-	uint32_t ID;
+	uint32_t ID = 0;
+    explicit Shader(uint32_t id) : ID(id) {}
 
-	NON_COPYABLE_OR_MOVABLE_CLASS(Shader)
+    Shader() = default;
+
+public:
+    Shader& operator= (Shader&& other) noexcept;
+
+private:
+	NON_COPYABLE_CLASS(Shader)
 };
 
 #endif
