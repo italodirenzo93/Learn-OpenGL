@@ -254,8 +254,8 @@ int main()
     std::unique_ptr<Scene> scene;
 //    scene = std::make_unique<BasicScene>(camera);
 //    scene = std::make_unique<LightingScene>(camera);
-//    scene = std::make_unique<MeshLoadingScene>(camera);
-    scene = std::make_unique<MultiCubeScene>(*camera);
+    scene = std::make_unique<MeshLoadingScene>(camera);
+//    scene = std::make_unique<MultiCubeScene>(*camera);
 
 	lastFrameTime = float(glfwGetTime());
 

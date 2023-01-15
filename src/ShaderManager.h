@@ -22,8 +22,19 @@ public:
         delete _instance;
     }
 
+    /**
+     * Pre-compiles and caches all shaders
+     */
     void preloadShaders();
 
+    /**
+     * Purges the shader cache of any currently unused shaders
+     */
+    void clearUnused();
+
+    /**
+     * Look up shader program by name
+     */
     std::shared_ptr<Shader> get(const std::string& name);
 
 private:

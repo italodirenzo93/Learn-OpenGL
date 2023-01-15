@@ -53,6 +53,26 @@ void ShaderManager::preloadShaders()
     }
 }
 
+void ShaderManager::clearUnused()
+{
+    vector<string> unusedShaders;
+
+    for (auto& shader : _shaders)
+    {
+        // If the use-count is 1, then the ShaderManager is the only owner left
+        if (shader.second.use_count() == 1)
+        {
+            shader.second.reset();
+            unusedShaders.emplace_back(shader.first);
+        }
+    }
+
+    for (auto& name : unusedShaders)
+    {
+        _shaders.erase(name);
+    }
+}
+
 shared_ptr<Shader> ShaderManager::get(const string& name)
 {
     auto shader = _shaders[name];
