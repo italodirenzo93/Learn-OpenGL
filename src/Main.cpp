@@ -5,6 +5,7 @@
 //#include "scenes/LightingScene.h"
 #include "scenes/MeshLoadingScene.h"
 #include "scenes/MultiCubeScene.h"
+#include "scenes/FramebufferEffectScene.h"
 
 using namespace std;
 
@@ -167,7 +168,7 @@ void APIENTRY glDebugOutput(GLenum source,
 
 #endif
 
-int main()
+int main(int argc, char *argv[])
 {
 	GLFWwindow *window;
 
@@ -254,8 +255,9 @@ int main()
     std::unique_ptr<Scene> scene;
 //    scene = std::make_unique<BasicScene>(camera);
 //    scene = std::make_unique<LightingScene>(camera);
-    scene = std::make_unique<MeshLoadingScene>(camera);
+    //scene = std::make_unique<MeshLoadingScene>(camera);
 //    scene = std::make_unique<MultiCubeScene>(*camera);
+	scene = make_unique<FramebufferEffectScene>(*camera);
 
 	lastFrameTime = float(glfwGetTime());
 

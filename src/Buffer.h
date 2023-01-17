@@ -26,6 +26,13 @@ public:
 		glBindBuffer(BufferType, 0);
 	}
 
+	void setData(const std::initializer_list<T>& initializer) const
+	{
+		glBindBuffer(BufferType, ID);
+		glBufferData(BufferType, static_cast<uint32_t>(sizeof(T) * initializer.size()), initializer.begin(), GL_STATIC_DRAW);
+		glBindBuffer(BufferType, 0);
+	}
+
 	void bind() const { glBindBuffer(BufferType, ID); }
 	void unbind() const { glBindBuffer(BufferType, 0); }
 

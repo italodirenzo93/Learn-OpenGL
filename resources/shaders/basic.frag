@@ -5,15 +5,12 @@ in vec2 TexCoord;
 
 out vec4 FragColor;
 
-uniform sampler2D texture1;
-uniform sampler2D texture2;
-
-uniform float uBlendAmount = 0.2;
+uniform sampler2D uTexture;
 
 void main()
 {
-	FragColor = mix(
-		texture2D(texture1, TexCoord),
-		texture2D(texture2, TexCoord),
-		uBlendAmount);
+	vec3 result = VertexColor;
+	result += vec3(texture(uTexture, TexCoord));
+	
+	FragColor = vec4(result, 1.0);
 }
