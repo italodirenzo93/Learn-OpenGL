@@ -8,7 +8,10 @@
 //#include "scenes/FramebufferEffectScene.h"
 #include "scenes/ModelViewerScene.h"
 
+#include <filesystem>
+
 using namespace std;
+namespace fs = std::filesystem;
 
 static constexpr int WIDTH = 1024;
 static constexpr int HEIGHT = 720;
@@ -171,6 +174,20 @@ void APIENTRY glDebugOutput(GLenum source,
 
 int main(int argc, char *argv[])
 {
+	if (argc < 2)
+	{
+		printf_s("No model file specified. Exiting...\n");
+		return 0;
+	}
+
+	const char* pathToModel = argv[1];
+
+	if (!fs::exists(pathToModel))
+	{
+		printf("Model file at %s does not exist. Exiting...\n", pathToModel);
+		return 0;
+	}
+
 	GLFWwindow *window;
 
 	/* Initialize the library */
@@ -219,10 +236,10 @@ int main(int argc, char *argv[])
 		return -1;
 
 	// Print OpenGL context information
-	std::cout << "OpenGL Context Version: " << glGetString(GL_VERSION) << std::endl
-			  << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl
-			  << "GPU Vendor: " << glGetString(GL_VENDOR) << std::endl
-			  << "GPU Model: " << glGetString(GL_RENDERER) << std::endl;
+	cout << "OpenGL Context Version: " << glGetString(GL_VERSION) << endl
+			  << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl
+			  << "GPU Vendor: " << glGetString(GL_VENDOR) << endl
+			  << "GPU Model: " << glGetString(GL_RENDERER) << endl << endl;
 
     // tell stb_image.h to flip loaded texture's on the y-axis (before loading model)
     stbi_set_flip_vertically_on_load(true);
@@ -259,7 +276,7 @@ int main(int argc, char *argv[])
     //scene = std::make_unique<MeshLoadingScene>(camera);
 //    scene = std::make_unique<MultiCubeScene>(*camera);
 	//scene = make_unique<FramebufferEffectScene>(*camera);
-	scene = make_unique<ModelViewerScene>(*camera, "./resources/objects/backpack/backpack.obj");
+	scene = make_unique<ModelViewerScene>(*camera, pathToModel);
 
 	lastFrameTime = float(glfwGetTime());
 
