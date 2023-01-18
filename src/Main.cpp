@@ -3,9 +3,10 @@
 #include "Camera.h"
 #include "scenes/Scene.h"
 //#include "scenes/LightingScene.h"
-#include "scenes/MeshLoadingScene.h"
-#include "scenes/MultiCubeScene.h"
-#include "scenes/FramebufferEffectScene.h"
+//#include "scenes/MeshLoadingScene.h"
+//#include "scenes/MultiCubeScene.h"
+//#include "scenes/FramebufferEffectScene.h"
+#include "scenes/ModelViewerScene.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ float lastFrameTime = 0.0f;
 float cameraSpeed = 6.0f;
 std::shared_ptr<Camera> camera = nullptr;
 bool bIsFirstMouse = true;
-bool bUseCameraControls = false;
+bool bUseCameraControls = true;
 
 void processInput(GLFWwindow *window)
 {
@@ -40,28 +41,22 @@ void processInput(GLFWwindow *window)
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		camera->position += cameraSpeed * camera->getForwardVector() * deltaTime;
+		camera->position += cameraSpeed * camera->front * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		camera->position -= cameraSpeed * camera->getForwardVector() * deltaTime;
+		camera->position -= cameraSpeed * camera->front * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		camera->position -= glm::normalize(glm::cross(camera->getForwardVector(), camera->getUpVector())) * cameraSpeed * deltaTime;
+		camera->position -= glm::normalize(glm::cross(camera->front, camera->up)) * cameraSpeed * deltaTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		camera->position += glm::normalize(glm::cross(camera->getForwardVector(), camera->getUpVector())) * cameraSpeed * deltaTime;
+		camera->position += glm::normalize(glm::cross(camera->front, camera->up)) * cameraSpeed * deltaTime;
 	}
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-	{
-		camera->position -= cameraSpeed * camera->getUpVector() * deltaTime;
-	}
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-	{
-		camera->position += cameraSpeed * camera->getUpVector() * deltaTime;
-	}
+
+	camera->update();
 }
 
 void scrollCallback(GLFWwindow *window, double xOffset, double yOffset)
@@ -70,6 +65,8 @@ void scrollCallback(GLFWwindow *window, double xOffset, double yOffset)
 	{
 		camera->fieldOfView = glm::clamp(camera->fieldOfView - float(yOffset), 1.0f, 45.0f);
 	}
+
+	camera->update();
 }
 
 float lastX = WIDTH / 2.0f;
@@ -96,11 +93,13 @@ void mouseCallback(GLFWwindow *window, double xPos, double yPos)
 	xOffset *= sensitivity;
 	yOffset *= sensitivity;
 
-	float pitch = camera->getPitch();
-	float yaw = camera->getYaw();
+	float pitch = camera->pitch;
+	float yaw = camera->yaw;
 
-	camera->setYaw(yaw + xOffset);
-	camera->setPitch(glm::clamp(pitch + yOffset, -89.0f, 89.0f));
+	camera->yaw = yaw + xOffset;
+	camera->pitch = glm::clamp(pitch + yOffset, -89.0f, 89.0f);
+
+	camera->update();
 }
 
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -114,7 +113,9 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+
 	camera->aspectRatio = float(width) / float(height);
+	camera->update();
 }
 
 #ifdef __DEBUG__
@@ -250,14 +251,15 @@ int main(int argc, char *argv[])
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
-	camera = std::make_shared<Camera>(float(WIDTH) / float(HEIGHT), glm::vec3(-2.50649f, 0.381334f, 3.36252f), glm::vec3(-45.0f, 1.0f, 0.0f));
+	camera = make_shared<Camera>(float(WIDTH) / float(HEIGHT), glm::vec3(-0.5f, 0.5f, 9.0), glm::vec3(0.0f, 1.0f, 0.0f));
 
     std::unique_ptr<Scene> scene;
 //    scene = std::make_unique<BasicScene>(camera);
 //    scene = std::make_unique<LightingScene>(camera);
     //scene = std::make_unique<MeshLoadingScene>(camera);
 //    scene = std::make_unique<MultiCubeScene>(*camera);
-	scene = make_unique<FramebufferEffectScene>(*camera);
+	//scene = make_unique<FramebufferEffectScene>(*camera);
+	scene = make_unique<ModelViewerScene>(*camera, "./resources/objects/backpack/backpack.obj");
 
 	lastFrameTime = float(glfwGetTime());
 

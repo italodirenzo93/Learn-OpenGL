@@ -30,6 +30,8 @@ struct DirLight
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+	float intensity;
 };
 uniform DirLight uDirLight;
 
@@ -75,7 +77,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 diffuse = light.diffuse * diff * vec3(texture(uMaterial.texture_diffuse1, TexCoords));
     vec3 specular = light.specular * spec * vec3(texture(uMaterial.texture_specular1, TexCoords));
 
-    return ambient + diffuse + specular;
+    return (ambient + diffuse + specular) * light.intensity;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
@@ -110,12 +112,12 @@ void main()
     // phase 1: directional lighting
     vec3 result = CalcDirLight(uDirLight, norm, viewDir);
     // phase 2: point lights
-    for (int i = 0; i < NR_POINT_LIGHTS; i++)
-    {
-        result += CalcPointLight(uPointLights[i], norm, FragPos, viewDir);
-    }
+    //for (int i = 0; i < NR_POINT_LIGHTS; i++)
+    //{
+    //    result += CalcPointLight(uPointLights[i], norm, FragPos, viewDir);
+    //}
     // phase 3: spot light
-    // result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
+    //result += CalcSpotLight(uSpotLight, norm, FragPos, viewDir);
 
     FragColor = vec4(result, 1.0);
 }

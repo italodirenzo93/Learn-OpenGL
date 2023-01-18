@@ -1,19 +1,9 @@
 #include "Camera.h"
 
-Camera::Camera(float aspectRatio, const glm::vec3 &pos, const glm::vec3 &eulerAngles)
-	: aspectRatio(aspectRatio), position(pos), _yaw(eulerAngles.x), _pitch(eulerAngles.y)
+Camera::Camera(float aspectRatio, const glm::vec3 &pos, const glm::vec3 &up)
+	: aspectRatio(aspectRatio), position(pos), up(up), worldUp(up)
 {
-	updateDirection();
-}
-
-glm::vec3 Camera::getForwardVector() const
-{
-	return glm::normalize(_direction);
-}
-
-glm::vec3 Camera::getUpVector() const
-{
-	return glm::vec3(0.0f, 1.0f, 0.0f);
+	update();
 }
 
 glm::mat4 Camera::getProjectionMatrix() const
@@ -23,26 +13,20 @@ glm::mat4 Camera::getProjectionMatrix() const
 
 glm::mat4 Camera::getViewMatrix() const
 {
-	return glm::lookAt(position, position + getForwardVector(), getUpVector());
+	return glm::lookAt(position, position + front, up);
 }
 
-void Camera::setPitch(float pitch)
+void Camera::update()
 {
-	_pitch = pitch;
-	updateDirection();
-}
+	front = glm::vec3(1.0f);
 
-void Camera::setYaw(float yaw)
-{
-	_yaw = yaw;
-	updateDirection();
-}
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
-void Camera::updateDirection()
-{
-	_direction.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-	_direction.y = sin(glm::radians(_pitch));
-	_direction.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
+	front = glm::normalize(front);
+	right = glm::normalize(glm::cross(front, worldUp));
+	up = glm::normalize(glm::cross(right, front));
 }
 
 void Camera::project(const Shader& shader) const
