@@ -3,6 +3,8 @@
 
 #include "CommonInclude.h"
 #include "Shader.h"
+#include "Buffer.h"
+#include "VertexArrayLayout.h"
 
 class Mesh
 {
@@ -10,8 +12,8 @@ public:
     struct Vertex
     {
         glm::vec3 position;
-        glm::vec3 normal;
         glm::vec2 texCoords;
+        glm::vec3 normal;
     };
 
     struct Texture
@@ -29,16 +31,15 @@ public:
 	explicit Mesh(const std::vector<Vertex> &vertexData, const std::vector<uint32_t> &indexData, const std::vector<Texture> &textures);
     Mesh(const Mesh& other);
     Mesh(Mesh&& other) noexcept;
-	~Mesh();
 
 	void draw(const Shader& program) const;
 
 private:
-	uint32_t _vbo = 0;
-    uint32_t _vao = 0;
-    uint32_t _ebo = 0;
+	VertexArrayLayout m_vao;
+	VertexBuffer<Vertex> m_vbo;
+	IndexBuffer m_ibo;
 
-	void setupMesh() const;
+	void setupMesh();
 
 public:
     Mesh& operator= (const Mesh& other);

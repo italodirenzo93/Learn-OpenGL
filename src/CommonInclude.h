@@ -17,6 +17,7 @@
 
 // C++ STL headers
 #include <iostream>
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <string>

@@ -18,7 +18,7 @@ private:
 	GLuint renderTexture = 0;
 	GLuint depthTexture = 0;
 
-	ArrayBuffer<float> quadVertices;
+	VertexBuffer<float> quadVertices;
 	GLuint vao = 0;
 };
 

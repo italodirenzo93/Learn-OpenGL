@@ -8,8 +8,6 @@
 //#include "scenes/FramebufferEffectScene.h"
 #include "scenes/ModelViewerScene.h"
 
-#include <filesystem>
-
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -274,7 +272,7 @@ int main(int argc, char *argv[])
 //    scene = std::make_unique<BasicScene>(camera);
 //    scene = std::make_unique<LightingScene>(camera);
     //scene = std::make_unique<MeshLoadingScene>(camera);
-//    scene = std::make_unique<MultiCubeScene>(*camera);
+    //scene = std::make_unique<MultiCubeScene>(*camera);
 	//scene = make_unique<FramebufferEffectScene>(*camera);
 	scene = make_unique<ModelViewerScene>(*camera, pathToModel);
 
