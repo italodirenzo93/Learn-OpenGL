@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 {
 	if (argc < 2)
 	{
-		printf_s("No model file specified. Exiting...\n");
+		printf("No model file specified. Exiting...\n");
 		return 0;
 	}
 

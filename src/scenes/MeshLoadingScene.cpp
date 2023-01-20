@@ -52,7 +52,7 @@ void MeshLoadingScene::render(float deltaTime)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    auto objectShader = ShaderManager::getInstance().get("mesh");
+    auto objectShader = ShaderManager::instance().get("mesh");
 
     objectShader->activate();
 
@@ -87,7 +87,7 @@ void MeshLoadingScene::render(float deltaTime)
     glStencilMask(0x00); // disable writing to the stencil buffer
     glDisable(GL_DEPTH_TEST);
     {
-        auto outlineShader = ShaderManager::getInstance().get("single_color");
+        auto outlineShader = ShaderManager::instance().get("single_color");
         outlineShader->activate();
 
         glm::mat4 model = glm::mat4(1.0f);

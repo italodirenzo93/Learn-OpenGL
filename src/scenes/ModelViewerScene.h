@@ -4,11 +4,16 @@
 #include "Scene.h"
 #include "Model.h"
 #include "Camera.h"
+#include "Buffer.h"
+#include "VertexArrayLayout.h"
+#include "Texture.h"
+
 
 class ModelViewerScene : public Scene
 {
 public:
 	ModelViewerScene(Camera& camera, const char* fileName);
+    ~ModelViewerScene();
 
 	void render(float deltaTime) override;
 	void renderUi() override;
@@ -18,6 +23,14 @@ private:
 	Camera& camera;
 
 	float lightIntensity;
+
+    uint32_t cubemapID;
+
+    VertexBuffer<float> cubeVBO;
+    IndexBuffer cubeIBO;
+    VertexArrayLayout cubeVAO, skyboxVAO;
+
+    std::unique_ptr<Texture> boxTexture;
 
 private:
 	NON_COPYABLE_OR_MOVABLE_CLASS(ModelViewerScene)
