@@ -4,6 +4,10 @@
 #include "Scene.h"
 #include "Model.h"
 #include "Camera.h"
+#include "Buffer.h"
+#include "VertexArrayLayout.h"
+#include "Texture.h"
+
 
 class ModelViewerScene : public Scene
 {
@@ -18,6 +22,14 @@ private:
 	Camera& camera;
 
 	float lightIntensity;
+
+    uint32_t cubemapID;
+
+    VertexBuffer<float> cubemapVBO;
+    IndexBuffer cubemapIBO;
+    VertexArrayLayout cubemapVAO;
+
+    std::unique_ptr<Texture> boxTexture;
 
 private:
 	NON_COPYABLE_OR_MOVABLE_CLASS(ModelViewerScene)

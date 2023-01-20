@@ -24,6 +24,19 @@ struct LayoutBinding
 		return semantic == other.semantic && size == other.size
 			&& type == other.type && normalized == other.normalized;
 	}
+
+    static uint32_t getSizeOfType(uint32_t type)
+    {
+        switch (type)
+        {
+            case GL_FLOAT:
+            case GL_UNSIGNED_INT: return 4;
+            case GL_UNSIGNED_BYTE: return 1;
+            default:
+                assert(false);
+                return 0;
+        }
+    }
 };
 
 class VertexArrayLayout
@@ -45,34 +58,26 @@ private:
 public:
 	VertexArrayLayout& addBinding(const LayoutBinding& binding);
 
-	template <typename Vertex>
+	template <typename Vertex, uint32_t Stride = 1>
 	void mapToBuffer(const VertexBuffer<Vertex>& vertexBuffer) const
 	{
 		vertexBuffer.bind();
 		bind();
 
-		size_t offset = 0;
+		size_t offsetInBytes = 0;
 
 		for (auto& binding : m_layoutBindings)
 		{
 			auto iter = Bindings.find(binding.semantic);
 			if (iter == Bindings.end()) continue;
 
-			unsigned int bindingPoint = iter->second;
+			const unsigned int bindingPoint = iter->second;
 
-			// TODO: this is a hack. this value has to match the size in bytes of each
-			//		 scalar value contained within the vertex struct. For now, only floats are ever used
-			//		 but this should be able to accomodate for other datatypes.
-			auto componentSize = sizeof(float);
-
-			glVertexAttribPointer(bindingPoint, binding.size, binding.type, binding.normalized, sizeof(Vertex), reinterpret_cast<const void*>(offset * componentSize));
+			glVertexAttribPointer(bindingPoint, static_cast<int>(binding.size), binding.type, binding.normalized, Stride * sizeof(Vertex), reinterpret_cast<const void*>(offsetInBytes));
 			glEnableVertexAttribArray(bindingPoint);
 
-			offset += binding.size;
+            offsetInBytes += binding.size * LayoutBinding::getSizeOfType(binding.type);
 		}
-
-		unbind();
-		vertexBuffer.unbind();
 	}
 
 public:

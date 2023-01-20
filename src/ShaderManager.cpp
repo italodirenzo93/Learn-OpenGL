@@ -11,7 +11,7 @@ using namespace std;
 ShaderManager* ShaderManager::_instance = nullptr;
 
 
-static const vector<string> ShaderNames {"basic", "lit", "mesh", "single_color"};
+static const vector<string> ShaderNames {"basic", "lit", "mesh", "single_color", "skybox"};
 static const string shaderDirectory = "./resources/shaders/";
 
 

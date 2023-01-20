@@ -15,7 +15,7 @@ MultiCubeScene::MultiCubeScene(const Camera& camera) : _camera(camera)
 
     _lightDir = glm::vec3(-0.2f, -1.0f, -0.3f);
 
-//    ShaderManager::getInstance().preloadShaders();
+//    ShaderManager::instance().preloadShaders();
 }
 
 void MultiCubeScene::render(float deltaTime)
@@ -23,7 +23,7 @@ void MultiCubeScene::render(float deltaTime)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    auto shader = ShaderManager::getInstance().get("single_color");
+    auto shader = ShaderManager::instance().get("single_color");
 
     shader->activate();
 

@@ -74,7 +74,7 @@ void FramebufferEffectScene::render(float deltaTime)
 	glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	auto shader = ShaderManager::getInstance().get("basic");
+	auto shader = ShaderManager::instance().get("basic");
 	shader->activate();
 
 	_camera.project(*shader);

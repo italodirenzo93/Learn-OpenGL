@@ -7,7 +7,7 @@
 class ShaderManager
 {
 public:
-    static ShaderManager& getInstance()
+    static ShaderManager& instance()
     {
         if (_instance == nullptr)
         {
