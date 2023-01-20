@@ -13,6 +13,7 @@ class ModelViewerScene : public Scene
 {
 public:
 	ModelViewerScene(Camera& camera, const char* fileName);
+    ~ModelViewerScene();
 
 	void render(float deltaTime) override;
 	void renderUi() override;
@@ -25,9 +26,9 @@ private:
 
     uint32_t cubemapID;
 
-    VertexBuffer<float> cubemapVBO;
-    IndexBuffer cubemapIBO;
-    VertexArrayLayout cubemapVAO;
+    VertexBuffer<float> cubeVBO;
+    IndexBuffer cubeIBO;
+    VertexArrayLayout cubeVAO, skyboxVAO;
 
     std::unique_ptr<Texture> boxTexture;
 

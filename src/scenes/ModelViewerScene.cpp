@@ -22,71 +22,61 @@ ModelViewerScene::ModelViewerScene(Camera& camera, const char* path) : camera(ca
 	lightIntensity = 2.5f;
 
     // Cubemap
-//    {
-//        glGenTextures(1, &cubemapID);
-//        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapID);
-//
-//        int width, height, nChannels;
-//        for (uint32_t i = 0; i < texture_faces.size(); i++) {
-//            unsigned char *data = stbi_load(texture_faces[i].c_str(), &width, &height, &nChannels, STBI_default);
-//
-//            if (data) {
-//                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-//                             data);
-//            } else {
-//                cout << "Failed to load cubemap texture " << texture_faces[i] << endl;
-//            }
-//
-//            stbi_image_free(data);
-//        }
-//
-//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-//    }
+    {
+        glGenTextures(1, &cubemapID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapID);
+
+        string basePath = "./resources/textures/skybox/";
+
+        int width, height, nChannels;
+        for (uint32_t i = 0; i < texture_faces.size(); i++)
+        {
+            unsigned char *data = stbi_load((basePath + texture_faces[i]).c_str(), &width, &height, &nChannels, STBI_default);
+
+            if (data) {
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                             data);
+            } else {
+                cout << "Failed to load cubemap texture " << texture_faces[i] << endl;
+            }
+
+            stbi_image_free(data);
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
 //    cubemapVBO.setData({});
 
-    util::createCube(cubemapVBO, cubemapIBO);
+    util::createCube(cubeVBO, cubeIBO);
 
-    cubemapVAO.addBinding({ POSITION, 3, GL_FLOAT, false })
+    cubeVAO.addBinding({ POSITION, 3, GL_FLOAT, false })
         .addBinding({NORMAL, 3, GL_FLOAT, false})
         .addBinding({ TEXCOORD, 2, GL_FLOAT, false });
 
-    cubemapVAO.mapToBuffer<float, 8>(cubemapVBO);
+    cubeVAO.mapToBuffer<float, 8>(cubeVBO);
+
+    skyboxVAO.addBinding({POSITION, 3, GL_FLOAT, false});
+    skyboxVAO.mapToBuffer<float, 8>(cubeVBO);
 
     boxTexture = make_unique<Texture>("./resources/textures/container.jpg");
 }
 
+ModelViewerScene::~ModelViewerScene()
+{
+    glDeleteTextures(1, &cubemapID);
+}
+
 void ModelViewerScene::render(float deltaTime)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Skybox
-//    {
-//        auto skyboxShader = ShaderManager::instance().get("skybox");
-//
-//        glDepthMask(GL_FALSE);
-//
-//        skyboxShader->activate();
-//
-//        camera.project(*skyboxShader);
-//
-//        cubemapVAO.bind();
-//        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapID);
-//
-//        glDrawArrays(GL_TRIANGLES, 0, 36);
-//
-//        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-//        cubemapVAO.unbind();
-//
-//        glDepthMask(GL_TRUE);
-//    }
+    util::clear(true, true, false, 0, 0.1f, 0.1f, 0.1f, 1.0f);
 
     // Model
 //    {
@@ -114,6 +104,10 @@ void ModelViewerScene::render(float deltaTime)
 
     // Box
     {
+//        glEnable(GL_CULL_FACE);
+//        glCullFace(GL_BACK);
+//        glFrontFace(GL_CW);
+
         auto shader = ShaderManager::instance().get("basic");
 
         shader->activate();
@@ -125,10 +119,36 @@ void ModelViewerScene::render(float deltaTime)
 
         shader->setMat4("uMatModel", glm::identity<glm::mat4>());
 
-        cubemapVAO.bind();
-        cubemapIBO.bind();
+        cubeVAO.bind();
+        cubeIBO.bind();
 
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    }
+
+    // Skybox
+    {
+//        glDisable(GL_CULL_FACE);
+
+        auto skyboxShader = ShaderManager::instance().get("skybox");
+
+//        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);
+
+        skyboxShader->activate();
+
+        camera.project(*skyboxShader);
+
+        skyboxVAO.bind();
+//        cubeIBO.bind();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapID);
+        skyboxShader->setInt("uCubemap", 0);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+//        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+
+        glDepthFunc(GL_LESS);
     }
 }
 
