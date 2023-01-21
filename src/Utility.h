@@ -2,6 +2,7 @@
 #define UTILITY_H
 
 #include "Buffer.h"
+#include "VertexArrayLayout.h"
 
 namespace util
 {
@@ -12,7 +13,12 @@ namespace util
      * @param vertexBuffer
      * @param indexBuffer
      */
-    void createCube(VertexBuffer<float> &vertexBuffer, IndexBuffer &indexBuffer);
+    void createCube(VertexArrayLayout& vertexArray, VertexBuffer<float> &vertexBuffer, IndexBuffer &indexBuffer);
+
+	/**
+	 * @param textureDir
+	 */
+	unsigned int loadCubemap(const std::string& textureDir);
 }
 
 #endif

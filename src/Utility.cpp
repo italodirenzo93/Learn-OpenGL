@@ -1,5 +1,8 @@
 #include "Utility.h"
 
+using namespace std;
+namespace fs = std::filesystem;
+
 namespace util
 {
     void clear(bool color, bool depth, bool stencil, int stencilValue, float r, float g, float b, float a)
@@ -26,8 +29,13 @@ namespace util
         glClear(flags);
     }
 
-    void createCube(VertexBuffer<float> &vertexBuffer, IndexBuffer &indexBuffer)
+    void createCube(VertexArrayLayout& vertexArray, VertexBuffer<float> &vertexBuffer, IndexBuffer &indexBuffer)
     {
+		vertexArray.clearBindings();
+		vertexArray.addBinding({ POSITION, 3, GL_FLOAT, false })
+			.addBinding({ NORMAL, 3, GL_FLOAT, false })
+			.addBinding({ TEXCOORD, 2, GL_FLOAT, false });
+
         vertexBuffer.setData({
              1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
              1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
@@ -55,6 +63,8 @@ namespace util
              -1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
         });
 
+		vertexArray.mapToBuffer<float, 8>(vertexBuffer);
+
         indexBuffer.setData({
             0, 1, 2,
             0, 2, 3,
@@ -70,4 +80,52 @@ namespace util
             20, 22, 23
         });
     }
+
+	unsigned int loadCubemap(const std::string& textureDir)
+	{
+		unsigned int cubemapID = 0;
+
+		static const vector<string> texture_faces{
+			"right.jpg",
+			"left.jpg",
+			"top.jpg",
+			"bottom.jpg",
+			"front.jpg",
+			"back.jpg"
+		};
+
+		glGenTextures(1, &cubemapID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapID);
+
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		// Cubemaps in OpenGL use a left-handed co-ordinate system while the rest of the API uses a right-handed
+		// co-ordinate system.... because reasons
+		stbi_set_flip_vertically_on_load(false);
+
+		int width, height, nChannels;
+		for (uint32_t i = 0; i < texture_faces.size(); i++)
+		{
+			unsigned char* data = stbi_load((textureDir + texture_faces[i]).c_str(), &width, &height, &nChannels, STBI_default);
+
+			if (data)
+			{
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			}
+			else
+			{
+				cout << "Failed to load cubemap texture " << texture_faces[i] << endl;
+			}
+
+			stbi_image_free(data);
+		}
+
+		stbi_set_flip_vertically_on_load(true);
+
+		return cubemapID;
+	}
 }

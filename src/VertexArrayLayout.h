@@ -56,6 +56,7 @@ private:
 	std::vector<LayoutBinding> m_layoutBindings;
 
 public:
+	void clearBindings() { m_layoutBindings.clear(); }
 	VertexArrayLayout& addBinding(const LayoutBinding& binding);
 
 	template <typename Vertex, uint32_t Stride = 1>

@@ -26,7 +26,7 @@ private:
 
     uint32_t cubemapID;
 
-    VertexBuffer<float> cubeVBO;
+    VertexBuffer<float> cubeVBO, skyboxVBO;
     IndexBuffer cubeIBO;
     VertexArrayLayout cubeVAO, skyboxVAO;
 
