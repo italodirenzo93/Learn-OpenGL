@@ -15,6 +15,8 @@ namespace util
      */
     void createCube(VertexArrayLayout& vertexArray, VertexBuffer<float> &vertexBuffer, IndexBuffer &indexBuffer);
 
+	void createSkybox(VertexArrayLayout& vertexArray, VertexBuffer<float>& vertexBuffer);
+
 	/**
 	 * @param textureDir
 	 */

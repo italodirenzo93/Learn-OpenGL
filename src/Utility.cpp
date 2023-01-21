@@ -81,6 +81,58 @@ namespace util
         });
     }
 
+	void createSkybox(VertexArrayLayout& vertexArray, VertexBuffer<float>& vertexBuffer)
+    {
+		vertexBuffer.setData({
+			// positions          
+		   -1.0f,  1.0f, -1.0f,
+		   -1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f,  1.0f, -1.0f,
+		   -1.0f,  1.0f, -1.0f,
+
+		   -1.0f, -1.0f,  1.0f,
+		   -1.0f, -1.0f, -1.0f,
+		   -1.0f,  1.0f, -1.0f,
+		   -1.0f,  1.0f, -1.0f,
+		   -1.0f,  1.0f,  1.0f,
+		   -1.0f, -1.0f,  1.0f,
+
+			1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+
+		   -1.0f, -1.0f,  1.0f,
+		   -1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f, -1.0f,  1.0f,
+		   -1.0f, -1.0f,  1.0f,
+
+		   -1.0f,  1.0f, -1.0f,
+			1.0f,  1.0f, -1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+		   -1.0f,  1.0f,  1.0f,
+		   -1.0f,  1.0f, -1.0f,
+
+		   -1.0f, -1.0f, -1.0f,
+		   -1.0f, -1.0f,  1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+		   -1.0f, -1.0f,  1.0f,
+			1.0f, -1.0f,  1.0f
+		});
+
+		vertexArray.clearBindings();
+		vertexArray.addBinding({ POSITION, 3, GL_FLOAT, false });
+		vertexArray.mapToBuffer<float, 3>(vertexBuffer);
+    }
+
 	unsigned int loadCubemap(const std::string& textureDir)
 	{
 		unsigned int cubemapID = 0;

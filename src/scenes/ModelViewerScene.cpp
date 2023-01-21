@@ -15,11 +15,12 @@ static const vector<string> texture_faces{
 
 ModelViewerScene::ModelViewerScene(Camera& camera, const char* path) : camera(camera)
 {
-//	model = make_unique<Model>(path);
+	model = make_unique<Model>(path);
 
 	ShaderManager::instance().preloadShaders();
 
 	lightIntensity = 2.5f;
+	//lightIntensity = 1.0f;
 
     // Cubemap
 	cubemapID = util::loadCubemap("./resources/textures/skybox/");
@@ -27,59 +28,17 @@ ModelViewerScene::ModelViewerScene(Camera& camera, const char* path) : camera(ca
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-	// Cube object
-    util::createCube(cubeVAO, cubeVBO, cubeIBO);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK); // default setting
+	glFrontFace(GL_CCW); // default setting
 
-    boxTexture = make_unique<Texture>("./resources/textures/container.jpg");
+	// Cube object
+    //util::createCube(cubeVAO, cubeVBO, cubeIBO);
+
+    //boxTexture = make_unique<Texture>("./resources/textures/container.jpg");
 
 	// Skybox
-	skyboxVBO.setData({
-		// positions          
-	   -1.0f,  1.0f, -1.0f,
-	   -1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-	   -1.0f,  1.0f, -1.0f,
-
-	   -1.0f, -1.0f,  1.0f,
-	   -1.0f, -1.0f, -1.0f,
-	   -1.0f,  1.0f, -1.0f,
-	   -1.0f,  1.0f, -1.0f,
-	   -1.0f,  1.0f,  1.0f,
-	   -1.0f, -1.0f,  1.0f,
-
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-
-	   -1.0f, -1.0f,  1.0f,
-	   -1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f, -1.0f,  1.0f,
-	   -1.0f, -1.0f,  1.0f,
-
-	   -1.0f,  1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-	   -1.0f,  1.0f,  1.0f,
-	   -1.0f,  1.0f, -1.0f,
-
-	   -1.0f, -1.0f, -1.0f,
-	   -1.0f, -1.0f,  1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-	   -1.0f, -1.0f,  1.0f,
-		1.0f, -1.0f,  1.0f
-	});
-
-	skyboxVAO.addBinding({ POSITION, 3, GL_FLOAT, false });
-	skyboxVAO.mapToBuffer<float, 3>(skyboxVBO);
+	util::createSkybox(skyboxVAO, skyboxVBO);
 }
 
 ModelViewerScene::~ModelViewerScene()
@@ -92,56 +51,56 @@ void ModelViewerScene::render(float deltaTime)
     util::clear(true, true, false, 0, 0.1f, 0.1f, 0.1f, 1.0f);
 
     // Model
-//    {
-//        auto shader = ShaderManager::instance().get("mesh");
-//        shader->activate();
-//
-//        camera.project(*shader);
-//
-//        auto matModel = glm::identity<glm::mat4>();
-//        shader->setMat4("uMatModel", matModel);
-//
-//        auto matNormal = glm::transpose(glm::inverse(matModel));
-//        shader->setMat4("uMatNormal", matNormal);
-//
-//        shader->setVec3("uDirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
-//        shader->setVec3("uDirLight.ambient", glm::vec3(0.2f));
-//        shader->setVec3("uDirLight.diffuse", glm::vec3(0.5f));
-//        shader->setVec3("uDirLight.specular", glm::vec3(1.0f));
-//        shader->setFloat("uDirLight.intensity", lightIntensity);
-//
-//        shader->setFloat("uMaterial.shininess", 32.0f);
-//
-//        model->draw(*shader);
-//    }
-
-    // Box
     {
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-        glFrontFace(GL_CW);
-
-        auto shader = ShaderManager::instance().get("basic");
-
+        auto shader = ShaderManager::instance().get("mesh");
         shader->activate();
 
         camera.project(*shader);
 
-        boxTexture->activate(GL_TEXTURE0);
+        auto matModel = glm::identity<glm::mat4>();
+        shader->setMat4("uMatModel", matModel);
 
-        shader->setMat4("uMatModel", glm::identity<glm::mat4>());
+        auto matNormal = glm::transpose(glm::inverse(matModel));
+        shader->setMat4("uMatNormal", matNormal);
 
-        cubeVAO.bind();
-        cubeIBO.bind();
+        shader->setVec3("uDirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+        shader->setVec3("uDirLight.ambient", glm::vec3(0.2f));
+        shader->setVec3("uDirLight.diffuse", glm::vec3(0.5f));
+        shader->setVec3("uDirLight.specular", glm::vec3(1.0f));
+        shader->setFloat("uDirLight.intensity", lightIntensity);
 
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+        shader->setFloat("uMaterial.shininess", 32.0f);
+
+        model->draw(*shader);
     }
+
+    // Box
+    //{
+    //    glEnable(GL_CULL_FACE);
+    //    glCullFace(GL_BACK);
+    //    glFrontFace(GL_CW);
+
+    //    auto shader = ShaderManager::instance().get("basic");
+
+    //    shader->activate();
+
+    //    camera.project(*shader);
+
+    //    boxTexture->activate(GL_TEXTURE0);
+
+    //    shader->setMat4("uMatModel", glm::identity<glm::mat4>());
+
+    //    cubeVAO.bind();
+    //    cubeIBO.bind();
+
+    //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    //}
 
     // Skybox
     {
         auto skyboxShader = ShaderManager::instance().get("skybox");
 
-		glCullFace(GL_FRONT);  // Show the "inward" faces of the cubemap
+		//glCullFace(GL_FRONT);  // Show the "inward" faces of the cubemap
         glDepthFunc(GL_LEQUAL);
 
         skyboxShader->activate();
@@ -156,7 +115,7 @@ void ModelViewerScene::render(float deltaTime)
 
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		glCullFace(GL_BACK);
+		//glCullFace(GL_BACK);
         glDepthFunc(GL_LESS);
     }
 }
